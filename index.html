@@ -1,2 +1,721 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Willy Trip</title></head><body><p>Deploying Willy Trip…</p></body></html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Willy Trip</title>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#fff; --text:#1b1d22; --muted:#6c7280; --line:#e6e8ec;
+  --accent:#2f6fed; --ok:#178a50; --warn:#b36b00; --danger:#c53b3b;
+  --shadow:0 8px 24px rgba(0,0,0,.07); --r:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea{font:inherit}
+.app{max-width:760px;margin:auto;padding:16px 14px 100px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{font-size:22px;font-weight:800}
+.sub{color:var(--muted);font-size:13px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin:12px 0}
+.hero{padding:18px}
+.trip-title{font-size:22px;font-weight:800;margin:2px 0 6px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge{padding:7px 10px;border-radius:999px;background:#f0f3f8;color:#445;font-size:13px}
+.section-title{font-weight:800;margin-bottom:10px}
+.now-title{font-size:24px;font-weight:800;margin:6px 0}
+.meta{color:var(--muted);line-height:1.65}
+.addr{margin:10px 0 0;font-size:14px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btn{border:0;border-radius:14px;padding:13px 14px;font-weight:700;cursor:pointer}
+.primary{background:var(--accent);color:white}
+.secondary{background:#eef2f8;color:#263248}
+.success{background:#eaf7ef;color:var(--ok)}
+.warn{background:#fff3df;color:var(--warn)}
+.danger{background:#fdecec;color:var(--danger)}
+.timeline{display:flex;flex-direction:column;gap:10px}
+.stop{display:grid;grid-template-columns:68px 1fr auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.stop:last-child{border-bottom:0}
+.time{font-weight:800}
+.stop-name{font-weight:750}
+.small{font-size:12px;color:var(--muted);margin-top:3px}
+.iconbtn{border:0;background:#f0f3f8;border-radius:10px;padding:8px 9px;cursor:pointer}
+.status{font-weight:800}
+.oktxt{color:var(--ok)} .warntxt{color:var(--warn)} .dangertxt{color:var(--danger)}
+.progress{height:9px;background:#edf0f4;border-radius:999px;overflow:hidden;margin-top:10px}
+.progress>div{height:100%;background:var(--accent);width:0}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:20}
+.bottom-inner{max-width:760px;margin:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.navbtn{border:0;background:transparent;padding:9px;border-radius:12px;color:#4b5260}
+.navbtn.active{background:#eef3ff;color:var(--accent);font-weight:800}
+.hidden{display:none}
+.formrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;background:white}
+textarea{min-height:80px}
+.edit-stop{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+.note{font-size:13px;color:var(--muted);line-height:1.6}
+
+.dashboard{display:grid;grid-template-columns:1.05fr .95fr;gap:12px;margin:12px 0}
+.info-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px}
+.clock-time{font-size:34px;font-weight:850;letter-spacing:.5px;line-height:1}
+.clock-date{margin-top:8px;color:var(--muted);font-size:14px}
+.weather-main{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.weather-temp{font-size:30px;font-weight:850}
+.weather-icon{font-size:34px}
+.weather-desc{font-weight:750;margin-top:3px}
+.weather-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-top:12px;font-size:12px;color:var(--muted)}
+.weather-location{font-size:12px;color:var(--muted);margin-bottom:7px}
+.weather-updated{font-size:11px;color:var(--muted);margin-top:8px}
+.quick-strip{display:flex;gap:8px;overflow:auto;padding-bottom:2px;margin-top:10px}
+.quick-chip{white-space:nowrap;background:#f1f4f9;border-radius:999px;padding:8px 10px;font-size:12px;color:#4b5260}
+@media (max-width:560px){.dashboard{grid-template-columns:1fr 1fr}.clock-time{font-size:30px}.weather-temp{font-size:27px}}
+@media (max-width:390px){.dashboard{grid-template-columns:1fr}.clock-time{font-size:32px}}
+
+@media (max-width:520px){
+  .app{padding-left:10px;padding-right:10px}
+  .stop{grid-template-columns:60px 1fr auto}
+  .btns{grid-template-columns:1fr}
+}
+
+.livebar{display:grid;grid-template-columns:1fr 1.15fr;gap:10px;margin:10px 0 14px}
+.livepanel{padding:14px 16px;background:transparent;border-radius:16px}
+.live-time{font-size:30px;font-weight:900;letter-spacing:.4px;line-height:1.05}
+.live-date{font-size:13px;color:var(--muted);margin-top:6px}
+.weather-compact{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.weather-compact .weather-temp{font-size:26px}
+.weather-details{font-size:12px;color:var(--muted);line-height:1.65;margin-top:6px}
+.trip-hero{background:linear-gradient(135deg,#1e55b8,#3978ee);color:white;padding:20px;border-radius:22px;box-shadow:0 12px 30px rgba(47,111,237,.22);margin:12px 0}
+.trip-hero .sub{color:rgba(255,255,255,.78)}
+.trip-hero-title{font-size:25px;font-weight:900;margin:5px 0}
+.trip-hero-date{color:rgba(255,255,255,.86);font-size:14px}
+.countdown-box{margin:16px 0 13px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:13px}
+.countdown-label{font-size:12px;color:rgba(255,255,255,.75)}
+.countdown-value{font-size:21px;font-weight:850;margin-top:3px}
+.hero-route{display:grid;grid-template-columns:64px 1fr;gap:7px 10px;margin:13px 0;font-size:14px}
+.hero-route .t{font-weight:850}
+.hero-route .place{color:rgba(255,255,255,.92)}
+.hero-stats{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}
+.hero-chip{background:rgba(255,255,255,.13);border-radius:999px;padding:7px 10px;font-size:12px}
+.hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.hero-btn{border:0;border-radius:13px;padding:12px;font-weight:800;cursor:pointer}
+.hero-btn.main{background:white;color:#245fc6}
+.hero-btn.alt{background:rgba(255,255,255,.14);color:white;border:1px solid rgba(255,255,255,.22)}
+.next-preview{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.next-preview-name{font-size:18px;font-weight:850}
+@media(max-width:520px){
+ .livebar{grid-template-columns:1fr 1.25fr}
+ .livepanel{padding:10px 8px}
+ .live-time{font-size:27px}
+ .hero-actions{grid-template-columns:1fr 1fr}
+}
+@media(max-width:370px){.livebar{grid-template-columns:1fr}.livepanel{padding:8px 4px}}
+
+
+/* v0.5 visual rebalance */
+.app{max-width:720px;padding-top:14px}
+.top{margin-bottom:8px;padding:0 4px}
+.brand{font-size:20px}
+.sub{font-size:12px}
+
+.livebar{
+  display:grid;
+  grid-template-columns:1fr 1.25fr;
+  gap:0;
+  margin:8px 0 14px;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.livepanel{
+  background:#fff;
+  padding:16px 18px;
+  border-radius:0;
+}
+.livepanel + .livepanel{
+  border-left:1px solid var(--line);
+}
+.live-time{
+  font-size:31px;
+  font-weight:850;
+}
+.live-date{font-size:13px}
+.weather-location{margin-bottom:4px}
+.weather-compact .weather-temp{font-size:28px}
+.weather-details{font-size:12px;line-height:1.55}
+.weather-updated{margin-top:5px}
+
+.trip-hero{
+  background:#fff;
+  color:var(--text);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:18px;
+  margin:12px 0;
+  border:1px solid #e8ecf4;
+  position:relative;
+  overflow:hidden;
+}
+.trip-hero::before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:5px;
+  background:var(--accent);
+}
+.trip-hero .sub{color:var(--accent);font-weight:800}
+.trip-hero-title{
+  font-size:24px;
+  color:var(--text);
+  margin-top:4px;
+}
+.trip-hero-date{color:var(--muted)}
+.countdown-box{
+  margin:14px 0 12px;
+  background:#f4f7fd;
+  border:1px solid #e3e9f5;
+  color:var(--text);
+  border-radius:14px;
+  padding:11px 13px;
+}
+.countdown-label{color:var(--muted)}
+.countdown-value{
+  font-size:20px;
+  color:var(--accent);
+}
+.hero-route{
+  color:var(--text);
+  margin:12px 0;
+}
+.hero-route .place{color:#4c5360}
+.hero-stats{margin:11px 0}
+.hero-chip{
+  background:#f2f5fa;
+  color:#4d5563;
+}
+.hero-actions{
+  margin-top:12px;
+}
+.hero-btn.main{
+  background:var(--accent);
+  color:#fff;
+}
+.hero-btn.alt{
+  background:#eef3ff;
+  color:#245fc6;
+  border:0;
+}
+
+.next-preview.card{
+  padding:14px 16px;
+}
+
+.card{
+  border:1px solid #eceef2;
+  box-shadow:0 5px 16px rgba(0,0,0,.05);
+}
+
+@media(max-width:520px){
+  .app{padding-left:10px;padding-right:10px}
+  .livebar{grid-template-columns:1fr}
+  .livepanel + .livepanel{
+    border-left:0;
+    border-top:1px solid var(--line);
+  }
+  .livepanel{padding:14px 16px}
+  .hero-actions{grid-template-columns:1fr 1fr}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div>
+      <div class="brand">🧭 Willy Trip</div>
+      <div class="sub">隨身出遊助手</div>
+    </div>
+    <button class="iconbtn" onclick="shareTrip()">分享</button>
+  </div>
+
+
+  <div class="livebar">
+    <div class="livepanel">
+      <div class="sub">現在</div>
+      <div class="live-time" id="liveClock">--:--:--</div>
+      <div class="live-date" id="liveDate">----/--/--</div>
+    </div>
+    <div class="livepanel">
+      <div class="weather-location" style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+        <span id="weatherLocation">📍 目前位置定位中…</span>
+        <button class="iconbtn" style="padding:4px 7px;font-size:10px" onclick="refreshLocationWeather()">重新定位</button>
+      </div>
+      <div class="weather-compact">
+        <div>
+          <span class="weather-temp" id="weatherTemp">--°C</span>
+          <span id="weatherDesc" style="font-weight:750;margin-left:5px">載入中…</span>
+        </div>
+        <div class="weather-icon" id="weatherIcon">⛅</div>
+      </div>
+      <div class="weather-details">
+        體感 <span id="weatherFeels">--°</span> ・ 降雨 <span id="weatherRain">--%</span><br>
+        風速 <span id="weatherWind">-- km/h</span> ・ 濕度 <span id="weatherHumidity">--%</span>
+      </div>
+      <div class="weather-updated" id="weatherUpdated">等待更新</div>
+    </div>
+  </div>
+
+  <section id="homeView">
+    <div class="trip-hero">
+      <div class="sub" id="heroStateLabel">下一趟旅程</div>
+      <div class="trip-hero-title" id="tripTitle"></div>
+      <div class="trip-hero-date" id="tripDate"></div>
+
+      <div class="countdown-box">
+        <div class="countdown-label" id="countdownLabel">距離出發</div>
+        <div class="countdown-value" id="tripCountdown">計算中…</div>
+      </div>
+
+      <div class="hero-route">
+        <div class="t">09:00</div><div class="place">集合｜7-ELEVEN 嘉添門市</div>
+        <div class="t">09:15</div><div class="place">正式出發前往內灣</div>
+      </div>
+
+      <div class="hero-stats">
+        <span class="hero-chip">📍 新竹</span>
+        <span class="hero-chip" id="stopCount">8 站</span>
+        <span class="hero-chip">🌅 日落 18:04</span>
+      </div>
+
+      <div class="hero-actions">
+        <button class="hero-btn main" onclick="openTimeline()">查看完整行程</button>
+        <button class="hero-btn alt" onclick="navigateMeeting()">導航集合點</button>
+      </div>
+    </div>
+
+    <div class="card next-preview-card">
+      <div class="sub">下一站預覽</div>
+      <div class="next-preview">
+        <div>
+          <div class="next-preview-name" id="nextPreviewName">內灣老街</div>
+          <div class="small" id="nextPreviewMeta">10:30｜范阿嬤野薑花肉粽</div>
+        </div>
+        <button class="iconbtn" onclick="navigateNextPreview()">導航</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">現在行程</div>
+      <div class="sub" id="nowTime"></div>
+      <div class="now-title" id="currentName">尚未開始</div>
+      <div class="meta" id="currentMeta"></div>
+      <div class="addr" id="currentAddr"></div>
+      <div class="btns">
+        <button class="btn primary" onclick="navigateCurrent()">🗺️ 一鍵導航</button>
+        <button class="btn success" onclick="markArrived()">✓ 已抵達</button>
+        <button class="btn secondary" onclick="goNext()">→ 前往下一站</button>
+        <button class="btn warn" onclick="skipStop()">略過此站</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">行程狀態</div>
+      <div class="status" id="statusText">尚未開始</div>
+      <div class="meta" id="sunsetText"></div>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">⭐ 關鍵提醒</div>
+      <div class="note">最重要節點：<b>16:40 左右離開 Bliss捲捲</b>；盡量不要晚於 17:00 才出發前往新月沙灣。</div>
+    </div>
+  </section>
+
+  <section id="timelineView" class="hidden">
+    <div class="card">
+      <div class="section-title">完整行程</div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </section>
+
+  <section id="editView" class="hidden">
+    <div class="card">
+      <div class="section-title">行程設定</div>
+      <div class="formrow">
+        <input id="editTitle" placeholder="行程名稱">
+        <input id="editDate" type="date">
+      </div>
+      <div id="editStops"></div>
+      <button class="btn primary" style="width:100%;margin-top:10px" onclick="saveEdits()">儲存修改</button>
+      <button class="btn secondary" style="width:100%;margin-top:8px" onclick="resetTrip()">還原預設行程</button>
+    </div>
+  </section>
+</div>
+
+<div class="bottom">
+  <div class="bottom-inner">
+    <button class="navbtn active" data-view="homeView" onclick="switchView(this,'homeView')">🏠 今日</button>
+    <button class="navbtn" data-view="timelineView" onclick="switchView(this,'timelineView')">🗓️ 行程</button>
+    <button class="navbtn" data-view="editView" onclick="switchView(this,'editView')">⚙️ 編輯</button>
+  </div>
+</div>
+
+<script>
+const DEFAULT_TRIP = {
+  title:"新竹機車一日遊",
+  date:"2026-09-11",
+  sunset:"18:04",
+  stops:[
+    {time:"09:00",name:"7-ELEVEN 嘉添門市",address:"新北市三峽區嘉添路109-2號1樓",note:"集合",stay:15},
+    {time:"10:30",name:"內灣老街",address:"新竹縣橫山鄉內灣老街",note:"范阿嬤野薑花肉粽",stay:30},
+    {time:"12:00",name:"享來初",address:"新竹市北區東門市場1060號攤位",note:"午餐，預留完整1小時",stay:60},
+    {time:"13:10",name:"鴨肉許（中正店）",address:"新竹市北區中正路212號",note:"午餐，預留完整1小時",stay:60},
+    {time:"14:40",name:"青青草原",address:"新竹市香山區草原路",note:"散步、拍照、看風景",stay:35},
+    {time:"15:45",name:"Bliss捲捲",address:"新竹市北區東大路四段315號店面B",note:"下午茶＋休息",stay:55},
+    {time:"17:10",name:"新月沙灣",address:"新竹縣竹北市鳳岡路五段155巷68號",note:"沙灘、拍照、看夕陽；可導航新月沙灣停車場",stay:60},
+    {time:"18:45",name:"Big City 遠東巨城購物中心",address:"新竹市東區中央路229號",note:"晚餐、逛街、休息",stay:105}
+  ]
+};
+let trip = JSON.parse(localStorage.getItem("willyTripData")||"null") || structuredClone(DEFAULT_TRIP);
+let state = JSON.parse(localStorage.getItem("willyTripState")||"null") || {current:0,arrived:false,skipped:[]};
+
+function saveState(){ localStorage.setItem("willyTripState",JSON.stringify(state)); }
+function saveTrip(){ localStorage.setItem("willyTripData",JSON.stringify(trip)); }
+
+function mins(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+function fmtDiff(n){
+  const sign=n>0?"+":"";
+  return sign+n+" 分";
+}
+function navUrl(addr){ return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(addr); }
+
+
+function updateTripCountdown(){
+  const now=new Date();
+  const depart=new Date(`${trip.date}T09:15:00+08:00`);
+  const end=new Date(`${trip.date}T23:59:59+08:00`);
+  const hero=document.getElementById("heroStateLabel");
+  const label=document.getElementById("countdownLabel");
+  const value=document.getElementById("tripCountdown");
+  const diff=depart-now;
+
+  if(diff>0){
+    hero.textContent="下一趟旅程";
+    label.textContent="距離 09:15 出發";
+    const total=Math.floor(diff/1000);
+    const d=Math.floor(total/86400);
+    const h=Math.floor((total%86400)/3600);
+    const m=Math.floor((total%3600)/60);
+    value.textContent=(d?`${d} 天 `:"")+`${h} 小時 ${m} 分`;
+  }else if(now<=end){
+    hero.textContent="旅程進行中";
+    label.textContent="今日旅程";
+    value.textContent=`目前第 ${Math.min(state.current+1,trip.stops.length)} / ${trip.stops.length} 站`;
+  }else{
+    hero.textContent="旅程已結束";
+    label.textContent="旅程狀態";
+    value.textContent="已完成";
+  }
+}
+function openTimeline(){
+  const b=document.querySelector('[data-view="timelineView"]');
+  switchView(b,"timelineView");
+}
+function navigateMeeting(){
+  window.open(navUrl(trip.stops[0].address),"_blank");
+}
+function getNextPreviewIndex(){
+  if(state.current<=0) return Math.min(1,trip.stops.length-1);
+  return Math.min(state.current+1,trip.stops.length-1);
+}
+function renderNextPreview(){
+  const i=getNextPreviewIndex(), s=trip.stops[i];
+  if(!s) return;
+  document.getElementById("nextPreviewName").textContent=s.name;
+  document.getElementById("nextPreviewMeta").textContent=`${s.time}｜${s.note}`;
+}
+function navigateNextPreview(){
+  const s=trip.stops[getNextPreviewIndex()];
+  if(s) window.open(navUrl(s.address),"_blank");
+}
+
+function render(){
+  document.getElementById("tripTitle").textContent=trip.title;
+  document.getElementById("tripDate").textContent="2026/09/11（星期五）";
+  document.getElementById("stopCount").textContent=`${trip.stops.length} 站`;
+  document.getElementById("nowTime").textContent="目前站點 "+(state.current+1)+" / "+trip.stops.length;
+  const s=trip.stops[Math.min(state.current,trip.stops.length-1)];
+  document.getElementById("currentName").textContent=s? s.name:"行程完成";
+  document.getElementById("currentMeta").textContent=s? `${s.time}｜${s.note}${state.arrived?"｜已抵達":""}`:"今天辛苦了";
+  document.getElementById("currentAddr").textContent=s? "📍 "+s.address:"";
+  document.getElementById("progressBar").style.width=((state.current)/trip.stops.length*100)+"%";
+  renderTimeline(); renderEdit(); renderNextPreview(); updateClock(); updateTripCountdown();
+}
+function renderTimeline(){
+  const el=document.getElementById("timeline"); el.innerHTML="";
+  trip.stops.forEach((s,i)=>{
+    const d=document.createElement("div"); d.className="stop";
+    const skipped=state.skipped.includes(i);
+    d.innerHTML=`<div class="time">${s.time}</div>
+      <div><div class="stop-name">${skipped?"⏭️ ":""}${s.name}</div>
+      <div class="small">${s.note}</div><div class="small">📍 ${s.address}</div></div>
+      <button class="iconbtn" onclick="window.open('${navUrl(s.address)}','_blank')">導航</button>`;
+    el.appendChild(d);
+  });
+}
+function renderEdit(){
+  document.getElementById("editTitle").value=trip.title;
+  document.getElementById("editDate").value=trip.date;
+  const el=document.getElementById("editStops"); el.innerHTML="";
+  trip.stops.forEach((s,i)=>{
+    const d=document.createElement("div"); d.className="edit-stop";
+    d.innerHTML=`<div class="formrow">
+      <input data-i="${i}" data-k="time" value="${s.time}">
+      <input data-i="${i}" data-k="name" value="${s.name}">
+    </div>
+    <input data-i="${i}" data-k="address" value="${s.address}" placeholder="地址">
+    <textarea data-i="${i}" data-k="note" placeholder="備註">${s.note}</textarea>`;
+    el.appendChild(d);
+  });
+}
+function saveEdits(){
+  trip.title=document.getElementById("editTitle").value.trim()||trip.title;
+  trip.date=document.getElementById("editDate").value||trip.date;
+  document.querySelectorAll("#editStops [data-i]").forEach(el=>{
+    trip.stops[+el.dataset.i][el.dataset.k]=el.value.trim();
+  });
+  saveTrip(); render(); alert("已儲存");
+}
+function resetTrip(){
+  if(confirm("確定還原預設新竹行程？")){
+    trip=structuredClone(DEFAULT_TRIP); state={current:0,arrived:false,skipped:[]};
+    saveTrip(); saveState(); render();
+  }
+}
+function navigateCurrent(){
+  const s=trip.stops[state.current]; if(s) window.open(navUrl(s.address),"_blank");
+}
+function markArrived(){ state.arrived=true; saveState(); render(); }
+function goNext(){
+  if(state.current<trip.stops.length-1){state.current++;state.arrived=false}else{state.current=trip.stops.length;state.arrived=false}
+  saveState(); render();
+}
+function skipStop(){
+  if(!state.skipped.includes(state.current)) state.skipped.push(state.current);
+  goNext();
+}
+function switchView(btn,id){
+  ["homeView","timelineView","editView"].forEach(v=>document.getElementById(v).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active")); btn.classList.add("active");
+}
+function updateClock(){
+  const now=new Date();
+  const tripDay = now.getFullYear()==2026 && now.getMonth()==8 && now.getDate()==11;
+  const stat=document.getElementById("statusText"), sun=document.getElementById("sunsetText");
+  if(!tripDay){
+    stat.textContent="行程尚未開始";
+    stat.className="status";
+    sun.textContent="🌅 9/11 預計日落 18:04";
+    return;
+  }
+  const cur=now.getHours()*60+now.getMinutes();
+  const s=trip.stops[Math.min(state.current,trip.stops.length-1)];
+  if(s){
+    const diff=cur-mins(s.time);
+    if(diff<=10){stat.textContent="目前大致準時";stat.className="status oktxt";}
+    else if(diff<=25){stat.textContent=`目前約延後 ${diff} 分鐘`;stat.className="status warntxt";}
+    else{stat.textContent=`目前約延後 ${diff} 分鐘`;stat.className="status dangertxt";}
+  }
+  const sunset=mins(trip.sunset), left=sunset-cur;
+  sun.textContent=left>=0?`距離日落還有 ${Math.floor(left/60)} 小時 ${left%60} 分鐘`:"今日已日落";
+}
+function shareTrip(){
+  const text=`${trip.title}\n${trip.date}\n`+trip.stops.map(s=>`${s.time} ${s.name}`).join("\n");
+  if(navigator.share) navigator.share({title:trip.title,text});
+  else navigator.clipboard.writeText(text).then(()=>alert("行程已複製"));
+}
+
+function updateLiveClock(){
+  const now=new Date();
+  const hh=String(now.getHours()).padStart(2,"0");
+  const mm=String(now.getMinutes()).padStart(2,"0");
+  const ss=String(now.getSeconds()).padStart(2,"0");
+  const days=["日","一","二","三","四","五","六"];
+  document.getElementById("liveClock").textContent=`${hh}:${mm}:${ss}`;
+  document.getElementById("liveDate").textContent=
+    `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,"0")}/${String(now.getDate()).padStart(2,"0")}（${days[now.getDay()]}）`;
+}
+function weatherCodeText(code){
+  if(code===0) return ["☀️","晴朗"];
+  if([1,2].includes(code)) return ["🌤️","晴時多雲"];
+  if(code===3) return ["☁️","陰天"];
+  if([45,48].includes(code)) return ["🌫️","有霧"];
+  if([51,53,55,56,57].includes(code)) return ["🌦️","毛毛雨"];
+  if([61,63,65,66,67].includes(code)) return ["🌧️","下雨"];
+  if([71,73,75,77].includes(code)) return ["🌨️","降雪"];
+  if([80,81,82].includes(code)) return ["🌧️","陣雨"];
+  if([85,86].includes(code)) return ["🌨️","陣雪"];
+  if([95,96,99].includes(code)) return ["⛈️","雷雨"];
+  return ["⛅","天氣"];
+}
+
+let lastWeatherCoords = null;
+
+function getBrowserLocation(){
+  return new Promise((resolve,reject)=>{
+    if(!navigator.geolocation){
+      reject(new Error("此瀏覽器不支援定位"));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos=>resolve({
+        lat:pos.coords.latitude,
+        lon:pos.coords.longitude,
+        accuracy:pos.coords.accuracy
+      }),
+      err=>reject(err),
+      {
+        enableHighAccuracy:true,
+        timeout:12000,
+        maximumAge:5*60*1000
+      }
+    );
+  });
+}
+
+async function reverseGeocode(lat, lon){
+  try{
+    // Open-Meteo geocoding is name-based, so here we use BigDataCloud reverse geocode service.
+    // If unavailable, we simply display coordinates and keep weather working.
+    const url=`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`;
+    const r=await fetch(url,{cache:"no-store"});
+    if(!r.ok) throw new Error("reverse geocode failed");
+    const d=await r.json();
+
+    const locality =
+      d.locality ||
+      d.city ||
+      d.principalSubdivision ||
+      d.localityInfo?.administrative?.[2]?.name ||
+      "";
+
+    const admin =
+      d.principalSubdivision ||
+      d.countryName ||
+      "";
+
+    if(locality && admin && !locality.includes(admin)) return `${admin} ${locality}`;
+    return locality || admin || `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+  }catch(e){
+    return `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+  }
+}
+
+async function fetchWeatherByCoords(lat, lon){
+  const url=
+    `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}`+
+    `&longitude=${encodeURIComponent(lon)}`+
+    `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m`+
+    `&hourly=precipitation_probability&timezone=auto&forecast_days=1`;
+
+  const r=await fetch(url,{cache:"no-store"});
+  if(!r.ok) throw new Error("weather fetch failed");
+  return await r.json();
+}
+
+async function loadWeather(forceLocation=false){
+  const locEl=document.getElementById("weatherLocation");
+
+  try{
+    let coords = lastWeatherCoords;
+
+    if(!coords || forceLocation){
+      locEl.textContent="📍 目前位置定位中…";
+      coords = await getBrowserLocation();
+      lastWeatherCoords = coords;
+    }
+
+    const [d, placeName] = await Promise.all([
+      fetchWeatherByCoords(coords.lat, coords.lon),
+      reverseGeocode(coords.lat, coords.lon)
+    ]);
+
+    const c=d.current||{};
+    const [icon,desc]=weatherCodeText(c.weather_code);
+
+    locEl.textContent=`📍 ${placeName}`;
+    document.getElementById("weatherTemp").textContent=
+      Number.isFinite(c.temperature_2m) ? Math.round(c.temperature_2m)+"°C" : "--°C";
+    document.getElementById("weatherFeels").textContent=
+      Number.isFinite(c.apparent_temperature) ? Math.round(c.apparent_temperature)+"°" : "--°";
+    document.getElementById("weatherWind").textContent=
+      Number.isFinite(c.wind_speed_10m) ? Math.round(c.wind_speed_10m)+" km/h" : "-- km/h";
+    document.getElementById("weatherHumidity").textContent=
+      Number.isFinite(c.relative_humidity_2m) ? Math.round(c.relative_humidity_2m)+"%" : "--%";
+    document.getElementById("weatherIcon").textContent=icon;
+    document.getElementById("weatherDesc").textContent=desc;
+
+    let pop="--";
+    if(d.hourly && d.hourly.time && d.hourly.precipitation_probability){
+      const now=new Date();
+      const target=
+        `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`+
+        `T${String(now.getHours()).padStart(2,"0")}:00`;
+
+      let i=d.hourly.time.indexOf(target);
+      if(i<0) i=0;
+      pop=d.hourly.precipitation_probability[i] ?? "--";
+    }
+    document.getElementById("weatherRain").textContent=pop+"%";
+
+    const t=new Date();
+    const accuracy = Math.round(coords.accuracy || 0);
+    document.getElementById("weatherUpdated").textContent=
+      `更新 ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}`+
+      (accuracy ? `｜定位約 ±${accuracy}m` : "");
+
+  }catch(e){
+    console.warn("定位/天氣失敗，改用新竹市備援", e);
+    try{
+      const fallback={lat:24.8138,lon:120.9675};
+      const d=await fetchWeatherByCoords(fallback.lat,fallback.lon);
+      const c=d.current||{};
+      const [icon,desc]=weatherCodeText(c.weather_code);
+
+      locEl.textContent="📍 新竹市（定位失敗，使用備援）";
+      document.getElementById("weatherTemp").textContent=Math.round(c.temperature_2m)+"°C";
+      document.getElementById("weatherFeels").textContent=Math.round(c.apparent_temperature)+"°";
+      document.getElementById("weatherWind").textContent=Math.round(c.wind_speed_10m)+" km/h";
+      document.getElementById("weatherHumidity").textContent=Math.round(c.relative_humidity_2m)+"%";
+      document.getElementById("weatherIcon").textContent=icon;
+      document.getElementById("weatherDesc").textContent=desc;
+
+      let pop="--";
+      if(d.hourly && d.hourly.precipitation_probability){
+        pop=d.hourly.precipitation_probability[0] ?? "--";
+      }
+      document.getElementById("weatherRain").textContent=pop+"%";
+      document.getElementById("weatherUpdated").textContent="定位權限未取得或定位失敗";
+    }catch(e2){
+      document.getElementById("weatherDesc").textContent="暫時無法取得";
+      document.getElementById("weatherUpdated").textContent="請確認網路與定位權限";
+    }
+  }
+}
+
+function refreshLocationWeather(){
+  loadWeather(true);
+}
+
+
+updateLiveClock();
+setInterval(()=>{updateLiveClock();updateTripCountdown();},1000);
+loadWeather(true);
+setInterval(()=>loadWeather(false),15*60*1000);
+render();
+setInterval(updateClock,30000);
+</script>
+</body>
+</html>
