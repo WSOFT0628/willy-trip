@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Willy Trip</title>
+<title>Willy Trip v1.0.1</title>
 <style>
 :root{
   --bg:#f5f6f8; --card:#fff; --text:#1b1d22; --muted:#6c7280; --line:#e6e8ec;
@@ -120,7 +120,7 @@ textarea{min-height:80px}
 
 .livebar{
   display:grid;
-  grid-template-columns:1fr 1.25fr;
+  grid-template-columns:.72fr 1.28fr;
   gap:0;
   margin:8px 0 14px;
   background:#fff;
@@ -264,6 +264,48 @@ textarea{min-height:80px}
   .day-summary-grid{grid-template-columns:1fr}
 }
 
+
+.nearby-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nearby-btn{border:1px solid var(--line);background:#fff;border-radius:16px;padding:16px;text-align:left;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.04)}
+.nearby-btn .ico{font-size:26px;display:block;margin-bottom:7px}
+.nearby-btn b{display:block;font-size:15px}
+.nearby-btn span{font-size:12px;color:var(--muted);display:block;margin-top:3px}
+.location-box{background:#f5f7fb;border-radius:14px;padding:12px;margin:10px 0;font-size:13px;line-height:1.6}
+.home-nearby{display:flex;gap:8px;overflow-x:auto;padding:2px 0 3px}
+.home-nearby button{white-space:nowrap;border:0;background:#f0f3f8;border-radius:999px;padding:9px 12px;font-size:12px;cursor:pointer}
+@media(max-width:390px){.nearby-quick{grid-template-columns:1fr}}
+
+
+.forecast-strip{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:2px}
+.forecast-item{min-width:76px;background:#f5f7fb;border-radius:12px;padding:9px;text-align:center;font-size:11px;color:#4c5562}
+.forecast-item b{display:block;font-size:13px;color:var(--text);margin-bottom:3px}
+.forecast-item .ficon{font-size:20px;margin:3px 0}
+.weather-today-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.weather-summary-chip{background:#f1f4f8;border-radius:999px;padding:6px 9px;font-size:11px;color:#525b68}
+.nearby-section-title{font-weight:850;margin:14px 0 8px}
+
+
+/* v1.0 weather UX */
+.weather-clickable{cursor:pointer}
+.weather-clickable:hover{background:#fbfcff}
+.home-weather-more{margin-top:8px;border:0;background:#eef3ff;color:#245fc6;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:750;cursor:pointer}
+.weather-modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.38);z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.weather-modal-backdrop.hidden{display:none}
+.weather-sheet{width:min(680px,100%);max-height:86vh;overflow:auto;background:#fff;border-radius:22px 22px 18px 18px;padding:18px;box-shadow:0 -12px 40px rgba(0,0,0,.18)}
+.weather-sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.weather-sheet-title{font-size:20px;font-weight:900}
+.weather-sheet-current{display:flex;justify-content:space-between;align-items:center;background:#f6f8fb;border-radius:16px;padding:14px;margin:12px 0}
+.weather-sheet-temp{font-size:32px;font-weight:900}
+.weather-tabs{display:flex;gap:7px;margin:12px 0}
+.weather-tabs button{border:0;background:#eef2f7;border-radius:999px;padding:8px 12px;font-weight:750;cursor:pointer}
+.weather-tabs button.active{background:var(--accent);color:#fff}
+.daily-forecast{display:grid;gap:8px}
+.daily-row{display:grid;grid-template-columns:1.2fr .7fr .9fr;gap:8px;align-items:center;background:#f7f9fc;border-radius:12px;padding:10px;font-size:12px}
+@media(min-width:700px){
+ .weather-modal-backdrop{align-items:center}
+ .weather-sheet{border-radius:22px}
+}
+
 </style>
 </head>
 <body>
@@ -283,10 +325,10 @@ textarea{min-height:80px}
       <div class="live-time" id="liveClock">--:--:--</div>
       <div class="live-date" id="liveDate">----/--/--</div>
     </div>
-    <div class="livepanel">
+    <div class="livepanel weather-clickable" onclick="openWeatherDetails()">
       <div class="weather-location" style="display:flex;justify-content:space-between;align-items:center;gap:6px">
         <span id="weatherLocation">📍 目前位置定位中…</span>
-        <button class="iconbtn" style="padding:4px 7px;font-size:10px" onclick="refreshLocationWeather()">重新定位</button>
+        <button class="iconbtn" style="padding:4px 7px;font-size:10px" onclick="event.stopPropagation();refreshLocationWeather()">重新定位</button>
       </div>
       <div class="weather-compact">
         <div>
@@ -300,6 +342,12 @@ textarea{min-height:80px}
         風速 <span id="weatherWind">-- km/h</span> ・ 濕度 <span id="weatherHumidity">--%</span>
       </div>
       <div class="weather-updated" id="weatherUpdated">等待更新</div>
+      <div class="weather-today-summary">
+        <span class="weather-summary-chip" id="weatherHighLow">最高 --° / 最低 --°</span>
+        <span class="weather-summary-chip" id="weatherNextRain">未來降雨 --</span>
+      </div>
+      <button class="home-weather-more" onclick="event.stopPropagation();openWeatherDetails()">查看未來天氣 ›</button>
+
     </div>
   </div>
 
@@ -316,7 +364,7 @@ textarea{min-height:80px}
 
       <div class="hero-route">
         <div class="t" id="heroFirstTime">--:--</div><div class="place" id="heroFirstPlace">第一站</div>
-        <div class="t">旅程</div><div class="place" id="heroDayInfo">1 天行程</div>
+        <div class="t">09:15</div><div class="place">正式出發</div>
       </div>
 
       <div class="hero-stats">
@@ -339,6 +387,18 @@ textarea{min-height:80px}
           <div class="small" id="nextPreviewMeta">10:30｜范阿嬤野薑花肉粽</div>
         </div>
         <button class="iconbtn" onclick="navigateNextPreview()">導航</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">附近快速找</div>
+      <div class="home-nearby">
+        <button onclick="openNearbySearch('restaurant')">🍽️ 吃東西</button>
+        <button onclick="openNearbySearch('cafe')">☕ 咖啡</button>
+        <button onclick="openNearbySearch('motorcycle_parking')">🛵 機車停車</button>
+        <button onclick="openNearbySearch('gas')">⛽ 加油</button>
+        <button onclick="openNearbySearch('convenience')">🏪 超商</button>
+        <button onclick="openNearbySearch('toilet')">🚻 廁所</button>
       </div>
     </div>
 
@@ -373,6 +433,56 @@ textarea{min-height:80px}
     <div class="card">
       <div class="section-title">完整行程</div>
       <div class="timeline" id="timeline"></div>
+    </div>
+  </section>
+
+  <section id="nearbyView" class="hidden">
+    <div class="card">
+      <div class="section-title">📍 附近探索</div>
+      <div class="note">以手機目前 GPS 位置為中心，快速尋找旅行途中常用設施。</div>
+
+      <div class="location-box">
+        <b id="nearbyLocationName">目前位置：尚未定位</b><br>
+        <span id="nearbyCoords">開啟搜尋時會取得最新定位</span>
+      </div>
+
+      <button class="btn secondary" style="width:100%;margin-bottom:12px" onclick="refreshNearbyLocation()">📡 重新取得目前位置</button>
+
+      <div class="nearby-section-title">交通／補給</div>
+      <div class="nearby-quick">
+        <button class="nearby-btn" onclick="openNearbySearch('motorcycle_parking')"><span class="ico">🛵</span><b>機車停車場</b><span>機車停車與停車格</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('car_parking')"><span class="ico">🚗</span><b>汽車停車場</b><span>汽車停車與停車場</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('gas')"><span class="ico">⛽</span><b>加油站</b><span>臨時補充燃油</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('convenience')"><span class="ico">🏪</span><b>便利商店</b><span>休息、補給、洗手間</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('atm')"><span class="ico">🏧</span><b>ATM</b><span>提款與金融服務</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('charging')"><span class="ico">🔋</span><b>充電站</b><span>電動車充電設施</span></button>
+      </div>
+
+      <div class="nearby-section-title">吃東西／休息</div>
+      <div class="nearby-quick">
+        <button class="nearby-btn" onclick="openNearbySearch('restaurant')"><span class="ico">🍽️</span><b>餐廳</b><span>附近餐廳與用餐地點</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('snack')"><span class="ico">🍢</span><b>小吃</b><span>在地小吃與街邊美食</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('breakfast')"><span class="ico">🥪</span><b>早餐</b><span>早餐店與早午餐</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('cafe')"><span class="ico">☕</span><b>咖啡廳</b><span>咖啡、甜點與休息</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('late_night')"><span class="ico">🌙</span><b>宵夜</b><span>晚間用餐選擇</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('dessert')"><span class="ico">🍰</span><b>甜點</b><span>甜點、冰品與飲料</span></button>
+      </div>
+
+      <div class="nearby-section-title">臨時需求</div>
+      <div class="nearby-quick">
+        <button class="nearby-btn" onclick="openNearbySearch('toilet')"><span class="ico">🚻</span><b>公共廁所</b><span>尋找附近洗手間</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('pharmacy')"><span class="ico">💊</span><b>藥局</b><span>藥品與簡易用品</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('hospital')"><span class="ico">🏥</span><b>醫院／診所</b><span>緊急醫療需求</span></button>
+        <button class="nearby-btn" onclick="openNearbySearch('police')"><span class="ico">👮</span><b>派出所</b><span>警察與協助</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">使用方式</div>
+      <div class="note">
+        Willy Trip 會先取得目前位置，再交由 Google Maps 顯示附近搜尋結果。
+        第一階段不需要額外的 Google API Key，也不會把搜尋範圍固定在旅程目的地。
+      </div>
     </div>
   </section>
 
@@ -463,10 +573,44 @@ textarea{min-height:80px}
   </section>
 </div>
 
+
+<div id="weatherModal" class="weather-modal-backdrop hidden" onclick="closeWeatherDetails(event)">
+  <div class="weather-sheet" onclick="event.stopPropagation()">
+    <div class="weather-sheet-head">
+      <div>
+        <div class="small">目前位置天氣</div>
+        <div class="weather-sheet-title" id="weatherModalLocation">定位天氣</div>
+      </div>
+      <button class="iconbtn" onclick="closeWeatherDetails()">✕</button>
+    </div>
+
+    <div class="weather-sheet-current">
+      <div>
+        <div class="weather-sheet-temp" id="weatherModalTemp">--°C</div>
+        <div id="weatherModalDesc">載入中…</div>
+      </div>
+      <div style="font-size:38px" id="weatherModalIcon">⛅</div>
+    </div>
+
+    <div class="weather-tabs">
+      <button id="weatherTabHourly" class="active" onclick="showWeatherTab('hourly')">未來 6 小時</button>
+      <button id="weatherTabDaily" onclick="showWeatherTab('daily')">未來 2 天</button>
+    </div>
+
+    <div id="weatherHourlyPanel">
+      <div class="forecast-strip" id="forecastStrip"></div>
+    </div>
+    <div id="weatherDailyPanel" class="hidden">
+      <div class="daily-forecast" id="dailyForecast"></div>
+    </div>
+  </div>
+</div>
+
 <div class="bottom">
-  <div class="bottom-inner" style="grid-template-columns:1fr 1fr 1fr 1fr">
+  <div class="bottom-inner" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
     <button class="navbtn active" data-view="homeView" onclick="switchView(this,'homeView')">🏠 今日</button>
     <button class="navbtn" data-view="timelineView" onclick="switchView(this,'timelineView')">🗓️ 行程</button>
+    <button class="navbtn" data-view="nearbyView" onclick="switchView(this,'nearbyView')">📍 附近</button>
     <button class="navbtn" data-view="editView" onclick="switchView(this,'editView')">⚙️ 編輯</button>
     <button class="navbtn" data-view="dataView" onclick="switchView(this,'dataView')">💾 資料</button>
   </div>
@@ -625,7 +769,7 @@ function updateTripCountdown(){
 
   if(diff>0){
     hero.textContent="下一趟旅程";
-    label.textContent="距離 09:15 出發";
+    label.textContent="距離出發";
     const total=Math.floor(diff/1000);
     const d=Math.floor(total/86400);
     const h=Math.floor((total%86400)/3600);
@@ -657,6 +801,12 @@ function renderNextPreview(){
   if(!s) return;
   document.getElementById("nextPreviewName").textContent=s.name;
   document.getElementById("nextPreviewMeta").textContent=`${s.time}｜${s.note}`;
+  const label=document.querySelector(".next-preview-card .sub");
+  if(label){
+    const now=new Date();
+    const depart=new Date(`${trip.startDate}T09:15:00+08:00`);
+    label.textContent=now<depart?"第一站預覽":"下一站";
+  }
 }
 function navigateNextPreview(){
   const s=allStops()[getNextPreviewIndex()];
@@ -667,7 +817,7 @@ function navigateNextPreview(){
 function buildBackupObject(){
   return {
     schema:"willy-trip-backup",
-    version:"3.0",
+    version:"4.0.1",
     exportedAt:new Date().toISOString(),
     app:"Willy Trip",
     trip:trip,
@@ -781,15 +931,96 @@ function updateBackupMeta(){
     `最後還原：${formatStoredTime(lastRestore)}`;
 }
 
+
+let nearbyCoords = null;
+
+function getFreshNearbyLocation(){
+  return new Promise((resolve,reject)=>{
+    if(!navigator.geolocation) return reject(new Error("瀏覽器不支援定位"));
+    navigator.geolocation.getCurrentPosition(
+      p=>resolve({
+        lat:p.coords.latitude,
+        lon:p.coords.longitude,
+        accuracy:p.coords.accuracy
+      }),
+      reject,
+      {enableHighAccuracy:true,timeout:12000,maximumAge:60000}
+    );
+  });
+}
+
+async function refreshNearbyLocation(){
+  const name=document.getElementById("nearbyLocationName");
+  const coords=document.getElementById("nearbyCoords");
+  if(name) name.textContent="目前位置：定位中…";
+  try{
+    nearbyCoords=await getFreshNearbyLocation();
+    let place="";
+    try{ place=await reverseGeocode(nearbyCoords.lat,nearbyCoords.lon); }catch(e){}
+    if(name) name.textContent=`目前位置：${place || "已取得 GPS"}`;
+    if(coords) coords.textContent=
+      `${nearbyCoords.lat.toFixed(5)}, ${nearbyCoords.lon.toFixed(5)}｜定位約 ±${Math.round(nearbyCoords.accuracy||0)}m`;
+    return nearbyCoords;
+  }catch(e){
+    if(name) name.textContent="目前位置：定位失敗";
+    if(coords) coords.textContent="請確認瀏覽器定位權限與 GPS";
+    throw e;
+  }
+}
+
+function nearbyQuery(type){
+  const map={
+    motorcycle_parking:"機車停車場",
+    car_parking:"汽車停車場",
+    gas:"加油站",
+    convenience:"便利商店",
+    restaurant:"餐廳",
+    snack:"小吃",
+    breakfast:"早餐",
+    cafe:"咖啡廳",
+    late_night:"宵夜",
+    dessert:"甜點",
+    toilet:"公共廁所",
+    pharmacy:"藥局",
+    hospital:"醫院 診所",
+    police:"派出所",
+    atm:"ATM",
+    charging:"充電站"
+  };
+  return map[type] || "附近";
+}
+
+async function openNearbySearch(type){
+  try{
+    // Always refresh so a moving traveler does not search around a stale location.
+    const pos=await refreshNearbyLocation();
+    const q=nearbyQuery(type);
+    const url=
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`+
+      `&center=${encodeURIComponent(pos.lat+","+pos.lon)}`;
+    window.open(url,"_blank");
+  }catch(e){
+    alert("無法取得目前位置，請允許 Willy Trip 使用定位後再試一次。");
+  }
+}
+
 function render(){
   const first=allStops()[0];
   if(document.getElementById("heroFirstTime")) document.getElementById("heroFirstTime").textContent=first?.time||"--:--";
   if(document.getElementById("heroFirstPlace")) document.getElementById("heroFirstPlace").textContent=first?`第一站｜${first.name}`:"尚未設定第一站";
-  if(document.getElementById("heroDayInfo")) document.getElementById("heroDayInfo").textContent=`${tripDayCount()} 天｜${trip.days.length} 個每日行程`;
   if(document.getElementById("heroTransport")) document.getElementById("heroTransport").textContent=`🚗 ${trip.transport||"未設定交通"}`;
   document.getElementById("tripTitle").textContent=trip.title;
-  document.getElementById("tripDate").textContent=formatTripDateRange();
-  document.getElementById("stopCount").textContent=`${totalStops()} 站｜${tripDayCount()} 天`;
+  {
+    const el=document.getElementById("tripDate");
+    if(trip.startDate===trip.endDate){
+      const d=new Date(trip.startDate+"T00:00:00");
+      const days=["日","一","二","三","四","五","六"];
+      el.textContent=`${trip.startDate.replaceAll("-","/")}（${days[d.getDay()]}）`;
+    }else{
+      el.textContent=formatTripDateRange();
+    }
+  }
+  document.getElementById("stopCount").textContent=tripDayCount()>1?`${totalStops()} 站｜${tripDayCount()} 天`:`${totalStops()} 站`;
   document.getElementById("nowTime").textContent="目前站點 "+Math.min(state.current+1,totalStops())+" / "+totalStops();
   const s=currentFlatStop();
   document.getElementById("currentName").textContent=s? s.name:"行程完成";
@@ -1061,7 +1292,7 @@ function skipStop(){
   goNext();
 }
 function switchView(btn,id){
-  ["homeView","timelineView","editView","dataView"].forEach(v=>document.getElementById(v).classList.add("hidden"));
+  ["homeView","timelineView","nearbyView","editView","dataView"].forEach(v=>document.getElementById(v).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active")); btn.classList.add("active");
 }
@@ -1129,6 +1360,68 @@ function weatherCodeText(code){
 
 let lastWeatherCoords = null;
 
+let latestWeatherData=null;
+
+function openWeatherDetails(){
+  const modal=document.getElementById("weatherModal");
+  if(!modal) return;
+  document.getElementById("weatherModalLocation").textContent=
+    (document.getElementById("weatherLocation")?.textContent||"目前位置").replace("📍 ","");
+  document.getElementById("weatherModalTemp").textContent=document.getElementById("weatherTemp")?.textContent||"--°C";
+  document.getElementById("weatherModalDesc").textContent=document.getElementById("weatherDesc")?.textContent||"";
+  document.getElementById("weatherModalIcon").textContent=document.getElementById("weatherIcon")?.textContent||"⛅";
+  renderWeatherDetails();
+  showWeatherTab("hourly");
+  modal.classList.remove("hidden");
+}
+function closeWeatherDetails(e){
+  if(e && e.target!==document.getElementById("weatherModal")) return;
+  document.getElementById("weatherModal")?.classList.add("hidden");
+}
+function showWeatherTab(tab){
+  document.getElementById("weatherHourlyPanel")?.classList.toggle("hidden",tab!=="hourly");
+  document.getElementById("weatherDailyPanel")?.classList.toggle("hidden",tab!=="daily");
+  document.getElementById("weatherTabHourly")?.classList.toggle("active",tab==="hourly");
+  document.getElementById("weatherTabDaily")?.classList.toggle("active",tab==="daily");
+}
+function renderWeatherDetails(){
+  const d=latestWeatherData;
+  if(!d) return;
+  const strip=document.getElementById("forecastStrip");
+  if(strip && d.hourly?.time){
+    strip.innerHTML="";
+    const now=new Date();
+    let start=d.hourly.time.findIndex(t=>{
+      const dt=new Date(t);
+      return dt >= new Date(now.getFullYear(),now.getMonth(),now.getDate(),now.getHours(),0,0);
+    });
+    if(start<0) start=0;
+    for(let j=start;j<Math.min(start+6,d.hourly.time.length);j++){
+      const dt=new Date(d.hourly.time[j]);
+      const temp=d.hourly.temperature_2m?.[j];
+      const rain=d.hourly.precipitation_probability?.[j] ?? 0;
+      const [fi]=weatherCodeText(d.hourly.weather_code?.[j]);
+      const item=document.createElement("div");
+      item.className="forecast-item";
+      item.innerHTML=`<b>${String(dt.getHours()).padStart(2,"0")}:00</b><div class="ficon">${fi}</div><div>${Number.isFinite(temp)?Math.round(temp)+"°":"--"}</div><div>🌧 ${rain}%</div>`;
+      strip.appendChild(item);
+    }
+  }
+  const daily=document.getElementById("dailyForecast");
+  if(daily && d.daily?.time){
+    daily.innerHTML="";
+    d.daily.time.forEach((date,i)=>{
+      const [icon,desc]=weatherCodeText(d.daily.weather_code?.[i]);
+      const row=document.createElement("div");
+      row.className="daily-row";
+      const label=i===0?"今天":i===1?"明天":date;
+      row.innerHTML=`<div><b>${label}</b><br>${icon} ${desc}</div><div>${Math.round(d.daily.temperature_2m_min?.[i]??0)}°～${Math.round(d.daily.temperature_2m_max?.[i]??0)}°</div><div>🌧 ${d.daily.precipitation_probability_max?.[i]??"--"}%</div>`;
+      daily.appendChild(row);
+    });
+  }
+}
+
+
 function getBrowserLocation(){
   return new Promise((resolve,reject)=>{
     if(!navigator.geolocation){
@@ -1184,7 +1477,7 @@ async function fetchWeatherByCoords(lat, lon){
     `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}`+
     `&longitude=${encodeURIComponent(lon)}`+
     `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m`+
-    `&hourly=precipitation_probability&timezone=auto&forecast_days=1`;
+    `&hourly=temperature_2m,precipitation_probability,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max&timezone=auto&forecast_days=2`;
 
   const r=await fetch(url,{cache:"no-store"});
   if(!r.ok) throw new Error("weather fetch failed");
@@ -1208,6 +1501,7 @@ async function loadWeather(forceLocation=false){
       reverseGeocode(coords.lat, coords.lon)
     ]);
 
+    latestWeatherData=d;
     const c=d.current||{};
     const [icon,desc]=weatherCodeText(c.weather_code);
 
@@ -1236,6 +1530,30 @@ async function loadWeather(forceLocation=false){
     }
     document.getElementById("weatherRain").textContent=pop+"%";
 
+    // Today summary
+    if(d.daily){
+      const hi=d.daily.temperature_2m_max?.[0];
+      const lo=d.daily.temperature_2m_min?.[0];
+      if(Number.isFinite(hi) && Number.isFinite(lo)){
+        document.getElementById("weatherHighLow").textContent=`最高 ${Math.round(hi)}° / 最低 ${Math.round(lo)}°`;
+      }
+    }
+
+    // Compact home summary; detailed hourly forecast is shown on demand.
+    if(d.hourly?.time){
+      const now=new Date();
+      let start=d.hourly.time.findIndex(t=>{
+        const dt=new Date(t);
+        return dt >= new Date(now.getFullYear(),now.getMonth(),now.getDate(),now.getHours(),0,0);
+      });
+      if(start<0) start=0;
+      let maxRain=0;
+      for(let j=start;j<Math.min(start+6,d.hourly.time.length);j++){
+        maxRain=Math.max(maxRain,Number(d.hourly.precipitation_probability?.[j])||0);
+      }
+      document.getElementById("weatherNextRain").textContent=`未來6小時最高降雨 ${maxRain}%`;
+    }
+
     const t=new Date();
     const accuracy = Math.round(coords.accuracy || 0);
     document.getElementById("weatherUpdated").textContent=
@@ -1263,6 +1581,11 @@ async function loadWeather(forceLocation=false){
         pop=d.hourly.precipitation_probability[0] ?? "--";
       }
       document.getElementById("weatherRain").textContent=pop+"%";
+      if(d.daily){
+        const hi=d.daily.temperature_2m_max?.[0], lo=d.daily.temperature_2m_min?.[0];
+        if(Number.isFinite(hi) && Number.isFinite(lo))
+          document.getElementById("weatherHighLow").textContent=`最高 ${Math.round(hi)}° / 最低 ${Math.round(lo)}°`;
+      }
       document.getElementById("weatherUpdated").textContent="定位權限未取得或定位失敗";
     }catch(e2){
       document.getElementById("weatherDesc").textContent="暫時無法取得";
