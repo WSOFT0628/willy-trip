@@ -227,6 +227,43 @@ textarea{min-height:80px}
   .hero-actions{grid-template-columns:1fr 1fr}
 }
 
+
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.data-action{border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;text-align:left;cursor:pointer}
+.data-action b{display:block;margin-bottom:4px}
+.data-action span{font-size:12px;color:var(--muted);line-height:1.45}
+.data-meta{background:#f6f8fb;border-radius:14px;padding:12px;margin-top:12px;font-size:13px;color:#505866;line-height:1.6}
+.file-input{display:none}
+@media(max-width:520px){.data-grid{grid-template-columns:1fr}}
+
+
+.day-editor{border:1px solid var(--line);border-radius:16px;padding:13px;margin:12px 0;background:#fbfcfe}
+.day-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.day-title{font-weight:850}
+.day-tools{display:flex;gap:6px}
+.day-tools button{border:0;background:#eef2f7;border-radius:9px;padding:7px 9px;cursor:pointer}
+.day-block{margin:14px 0 18px}
+.day-block-title{font-size:18px;font-weight:850;margin-bottom:4px}
+.day-block-sub{font-size:12px;color:var(--muted);margin-bottom:8px}
+.stop-add{width:100%;margin-top:8px}
+.trip-summary-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+
+.day-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.lodging-editor{border:1px solid #dfe5ef;background:#f8fafc;border-radius:14px;padding:12px;margin-top:10px}
+.lodging-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.lodging-toggle{display:flex;align-items:center;gap:7px;font-size:13px}
+.lodging-toggle input{width:auto}
+.lodging-fields.hidden-fields{display:none}
+.lodging-card{border:1px solid #dfe5ef;background:#f8fafc;border-radius:14px;padding:12px;margin:10px 0 14px}
+.lodging-card-title{font-weight:850;font-size:16px;margin-bottom:5px}
+.lodging-card-meta{font-size:12px;color:var(--muted);line-height:1.6}
+.day-route-info{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.day-route-chip{background:#f1f4f8;border-radius:999px;padding:6px 9px;font-size:12px;color:#525b68}
+@media(max-width:520px){
+  .day-summary-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -278,12 +315,12 @@ textarea{min-height:80px}
       </div>
 
       <div class="hero-route">
-        <div class="t">09:00</div><div class="place">集合｜7-ELEVEN 嘉添門市</div>
-        <div class="t">09:15</div><div class="place">正式出發前往內灣</div>
+        <div class="t" id="heroFirstTime">--:--</div><div class="place" id="heroFirstPlace">第一站</div>
+        <div class="t">旅程</div><div class="place" id="heroDayInfo">1 天行程</div>
       </div>
 
       <div class="hero-stats">
-        <span class="hero-chip">📍 新竹</span>
+        <span class="hero-chip" id="heroTransport">🚗 交通</span>
         <span class="hero-chip" id="stopCount">8 站</span>
         <span class="hero-chip">🌅 日落 18:04</span>
       </div>
@@ -341,44 +378,230 @@ textarea{min-height:80px}
 
   <section id="editView" class="hidden">
     <div class="card">
-      <div class="section-title">行程設定</div>
+      <div class="section-title">旅程設定</div>
+
       <div class="formrow">
-        <input id="editTitle" placeholder="行程名稱">
-        <input id="editDate" type="date">
+        <input id="editTitle" placeholder="旅程名稱">
+        <input id="editTransport" placeholder="交通方式，例如：機車">
       </div>
-      <div id="editStops"></div>
+
+      <div class="formrow">
+        <div>
+          <div class="small" style="margin-bottom:4px">開始日期</div>
+          <input id="editStartDate" type="date">
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:4px">結束日期</div>
+          <input id="editEndDate" type="date">
+        </div>
+      </div>
+
+      <div class="trip-summary-row">
+        <span class="badge" id="editDayCount">1 天</span>
+        <span class="badge" id="editStopCount">0 個行程點</span>
+      </div>
+      <div class="note" style="margin-top:6px">
+        單日旅程不顯示 Day 1；只有跨日旅程才使用 Day 1、Day 2… 分日顯示。
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+        <div class="section-title" style="margin:0">每日行程</div>
+        <button class="iconbtn" onclick="addTripDay()">＋ 新增一天</button>
+      </div>
+
+      <div id="editDays"></div>
+
       <button class="btn primary" style="width:100%;margin-top:10px" onclick="saveEdits()">儲存修改</button>
       <button class="btn secondary" style="width:100%;margin-top:8px" onclick="resetTrip()">還原預設行程</button>
+    </div>
+  </section>
+
+  <section id="dataView" class="hidden">
+    <div class="card">
+      <div class="section-title">資料中心</div>
+      <div class="note">備份內容包含：旅程資料、目前進度、抵達／略過狀態與系統保存資料。</div>
+
+      <div class="data-grid" style="margin-top:12px">
+        <button class="data-action" onclick="exportBackup()">
+          <b>⬇️ 完整備份</b>
+          <span>下載 Willy Trip JSON 備份檔</span>
+        </button>
+
+        <button class="data-action" onclick="document.getElementById('restoreFile').click()">
+          <b>⬆️ 完整還原</b>
+          <span>從先前的 JSON 備份恢復</span>
+        </button>
+
+        <button class="data-action" onclick="copyBackupToClipboard()">
+          <b>📋 複製備份資料</b>
+          <span>將 JSON 直接複製到剪貼簿</span>
+        </button>
+
+        <button class="data-action" onclick="showBackupSummary()">
+          <b>🔎 檢視資料摘要</b>
+          <span>查看目前保存的旅程與狀態</span>
+        </button>
+      </div>
+
+      <input id="restoreFile" class="file-input" type="file" accept=".json,application/json" onchange="restoreBackupFile(event)">
+
+      <div class="data-meta" id="backupMeta">
+        尚未建立備份。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">資料維護</div>
+      <div class="btns">
+        <button class="btn warn" onclick="resetProgressOnly()">重設旅程進度</button>
+        <button class="btn danger" onclick="clearAllTripData()">清除 Willy Trip 資料</button>
+      </div>
+      <div class="note" style="margin-top:10px">
+        建議在重大修改前、旅行前一天與旅行結束後各做一次完整備份。
+      </div>
     </div>
   </section>
 </div>
 
 <div class="bottom">
-  <div class="bottom-inner">
+  <div class="bottom-inner" style="grid-template-columns:1fr 1fr 1fr 1fr">
     <button class="navbtn active" data-view="homeView" onclick="switchView(this,'homeView')">🏠 今日</button>
     <button class="navbtn" data-view="timelineView" onclick="switchView(this,'timelineView')">🗓️ 行程</button>
     <button class="navbtn" data-view="editView" onclick="switchView(this,'editView')">⚙️ 編輯</button>
+    <button class="navbtn" data-view="dataView" onclick="switchView(this,'dataView')">💾 資料</button>
   </div>
 </div>
 
 <script>
 const DEFAULT_TRIP = {
   title:"新竹機車一日遊",
-  date:"2026-09-11",
+  startDate:"2026-09-11",
+  endDate:"2026-09-11",
+  transport:"機車",
   sunset:"18:04",
-  stops:[
-    {time:"09:00",name:"7-ELEVEN 嘉添門市",address:"新北市三峽區嘉添路109-2號1樓",note:"集合",stay:15},
-    {time:"10:30",name:"內灣老街",address:"新竹縣橫山鄉內灣老街",note:"范阿嬤野薑花肉粽",stay:30},
-    {time:"12:00",name:"享來初",address:"新竹市北區東門市場1060號攤位",note:"午餐，預留完整1小時",stay:60},
-    {time:"13:10",name:"鴨肉許（中正店）",address:"新竹市北區中正路212號",note:"午餐，預留完整1小時",stay:60},
-    {time:"14:40",name:"青青草原",address:"新竹市香山區草原路",note:"散步、拍照、看風景",stay:35},
-    {time:"15:45",name:"Bliss捲捲",address:"新竹市北區東大路四段315號店面B",note:"下午茶＋休息",stay:55},
-    {time:"17:10",name:"新月沙灣",address:"新竹縣竹北市鳳岡路五段155巷68號",note:"沙灘、拍照、看夕陽；可導航新月沙灣停車場",stay:60},
-    {time:"18:45",name:"Big City 遠東巨城購物中心",address:"新竹市東區中央路229號",note:"晚餐、逛街、休息",stay:105}
+  days:[
+    {
+      date:"2026-09-11",
+      title:"新竹一日遊",
+      lodging:"",
+      note:"",
+      stops:[
+        {time:"09:00",name:"7-ELEVEN 嘉添門市",address:"新北市三峽區嘉添路109-2號1樓",note:"集合",stay:15},
+        {time:"10:30",name:"內灣老街",address:"新竹縣橫山鄉內灣老街",note:"范阿嬤野薑花肉粽",stay:30},
+        {time:"12:00",name:"享來初",address:"新竹市北區東門市場1060號攤位",note:"午餐，預留完整1小時",stay:60},
+        {time:"13:10",name:"鴨肉許（中正店）",address:"新竹市北區中正路212號",note:"午餐，預留完整1小時",stay:60},
+        {time:"14:40",name:"青青草原",address:"新竹市香山區草原路",note:"散步、拍照、看風景",stay:35},
+        {time:"15:45",name:"Bliss捲捲",address:"新竹市北區東大路四段315號店面B",note:"下午茶＋休息",stay:55},
+        {time:"17:10",name:"新月沙灣",address:"新竹縣竹北市鳳岡路五段155巷68號",note:"沙灘、拍照、看夕陽；可導航新月沙灣停車場",stay:60},
+        {time:"18:45",name:"Big City 遠東巨城購物中心",address:"新竹市東區中央路229號",note:"晚餐、逛街、休息",stay:105}
+      ]
+    }
   ]
 };
 let trip = JSON.parse(localStorage.getItem("willyTripData")||"null") || structuredClone(DEFAULT_TRIP);
+
 let state = JSON.parse(localStorage.getItem("willyTripState")||"null") || {current:0,arrived:false,skipped:[]};
+
+function migrateTripSchema(){
+  // Backward compatibility for v0.6 and earlier one-day data.
+  if(!trip.days){
+    const legacyStops = Array.isArray(trip.stops) ? trip.stops : [];
+    const legacyDate = trip.date || trip.startDate || "2026-09-11";
+    trip = {
+      title: trip.title || "我的旅程",
+      startDate: legacyDate,
+      endDate: legacyDate,
+      transport: trip.transport || "機車",
+      sunset: trip.sunset || "18:04",
+      days:[{
+        date: legacyDate,
+        title: trip.title || "第 1 天",
+        lodging:"",
+        note:"",
+        stops: legacyStops
+      }]
+    };
+    saveTrip();
+  }
+  if(!trip.startDate) trip.startDate = trip.days?.[0]?.date || "2026-09-11";
+  if(!trip.endDate) trip.endDate = trip.days?.[trip.days.length-1]?.date || trip.startDate;
+  trip.days = trip.days || [];
+
+  // v0.8 day-level structure migration
+  trip.days.forEach((day,di)=>{
+    if(day.transport === undefined) day.transport = "";
+    if(day.startPoint === undefined) day.startPoint = "";
+    if(day.endPoint === undefined) day.endPoint = "";
+
+    // Previous versions stored lodging as a plain string.
+    if(typeof day.lodging === "string"){
+      day.lodging = {
+        enabled: !!day.lodging,
+        name: day.lodging || "",
+        address: "",
+        checkIn: "",
+        checkOut: "",
+        bookingRef: "",
+        note: ""
+      };
+    }else if(!day.lodging){
+      day.lodging = {
+        enabled:false,
+        name:"",
+        address:"",
+        checkIn:"",
+        checkOut:"",
+        bookingRef:"",
+        note:""
+      };
+    }else{
+      day.lodging = {
+        enabled: !!day.lodging.enabled,
+        name: day.lodging.name || "",
+        address: day.lodging.address || "",
+        checkIn: day.lodging.checkIn || "",
+        checkOut: day.lodging.checkOut || "",
+        bookingRef: day.lodging.bookingRef || "",
+        note: day.lodging.note || ""
+      };
+    }
+  });
+}
+migrateTripSchema();
+
+function allStops(){
+  const flat=[];
+  trip.days.forEach((day,dayIndex)=>{
+    (day.stops||[]).forEach((stop,stopIndex)=>{
+      flat.push({...stop, dayIndex, stopIndex, date:day.date, dayTitle:day.title});
+    });
+  });
+  return flat;
+}
+function totalStops(){ return allStops().length; }
+function currentFlatStop(){
+  const flat=allStops();
+  return flat[Math.min(state.current, Math.max(flat.length-1,0))] || null;
+}
+function formatTripDateRange(){
+  const a=trip.startDate, b=trip.endDate;
+  if(!a) return "";
+  if(a===b) return a.replaceAll("-","/");
+  return `${a.replaceAll("-","/")} ～ ${b.replaceAll("-","/")}`;
+}
+function tripDayCount(){
+  if(!trip.startDate || !trip.endDate) return trip.days.length || 1;
+  const a=new Date(trip.startDate+"T00:00:00");
+  const b=new Date(trip.endDate+"T00:00:00");
+  return Math.max(1,Math.round((b-a)/86400000)+1);
+}
+function getCurrentTripDayIndex(){
+  const today=new Date();
+  const y=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+  const idx=trip.days.findIndex(d=>d.date===y);
+  return idx>=0?idx:0;
+}
+
 
 function saveState(){ localStorage.setItem("willyTripState",JSON.stringify(state)); }
 function saveTrip(){ localStorage.setItem("willyTripData",JSON.stringify(trip)); }
@@ -393,8 +616,8 @@ function navUrl(addr){ return "https://www.google.com/maps/search/?api=1&query="
 
 function updateTripCountdown(){
   const now=new Date();
-  const depart=new Date(`${trip.date}T09:15:00+08:00`);
-  const end=new Date(`${trip.date}T23:59:59+08:00`);
+  const depart=new Date(`${trip.startDate}T09:15:00+08:00`);
+  const end=new Date(`${trip.endDate}T23:59:59+08:00`);
   const hero=document.getElementById("heroStateLabel");
   const label=document.getElementById("countdownLabel");
   const value=document.getElementById("tripCountdown");
@@ -411,7 +634,7 @@ function updateTripCountdown(){
   }else if(now<=end){
     hero.textContent="旅程進行中";
     label.textContent="今日旅程";
-    value.textContent=`目前第 ${Math.min(state.current+1,trip.stops.length)} / ${trip.stops.length} 站`;
+    value.textContent=`目前第 ${Math.min(state.current+1,totalStops())} / ${totalStops()} 站`;
   }else{
     hero.textContent="旅程已結束";
     label.textContent="旅程狀態";
@@ -423,82 +646,414 @@ function openTimeline(){
   switchView(b,"timelineView");
 }
 function navigateMeeting(){
-  window.open(navUrl(trip.stops[0].address),"_blank");
+  const s=allStops()[0]; if(s) window.open(navUrl(s.address),"_blank");
 }
 function getNextPreviewIndex(){
-  if(state.current<=0) return Math.min(1,trip.stops.length-1);
-  return Math.min(state.current+1,trip.stops.length-1);
+  if(state.current<=0) return Math.min(1,totalStops()-1);
+  return Math.min(state.current+1,totalStops()-1);
 }
 function renderNextPreview(){
-  const i=getNextPreviewIndex(), s=trip.stops[i];
+  const i=getNextPreviewIndex(), s=allStops()[i];
   if(!s) return;
   document.getElementById("nextPreviewName").textContent=s.name;
   document.getElementById("nextPreviewMeta").textContent=`${s.time}｜${s.note}`;
 }
 function navigateNextPreview(){
-  const s=trip.stops[getNextPreviewIndex()];
+  const s=allStops()[getNextPreviewIndex()];
   if(s) window.open(navUrl(s.address),"_blank");
 }
 
+
+function buildBackupObject(){
+  return {
+    schema:"willy-trip-backup",
+    version:"3.0",
+    exportedAt:new Date().toISOString(),
+    app:"Willy Trip",
+    trip:trip,
+    state:state
+  };
+}
+
+function exportBackup(){
+  const data=buildBackupObject();
+  const text=JSON.stringify(data,null,2);
+  const blob=new Blob([text],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const d=new Date();
+  const stamp=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}_${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}`;
+  a.href=url;
+  a.download=`Willy_Trip_Backup_${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  localStorage.setItem("willyTripLastBackupAt",new Date().toISOString());
+  updateBackupMeta();
+}
+
+async function restoreBackupFile(event){
+  const file=event.target.files?.[0];
+  if(!file) return;
+  try{
+    const text=await file.text();
+    const data=JSON.parse(text);
+    if(data.schema!=="willy-trip-backup" || !data.trip || !data.state){
+      throw new Error("不是有效的 Willy Trip 備份");
+    }
+    if(!confirm("確定要用此備份覆蓋目前 Willy Trip 資料？")) return;
+
+    trip=data.trip;
+    state=data.state;
+    saveTrip();
+    saveState();
+    localStorage.setItem("willyTripLastRestoreAt",new Date().toISOString());
+    render();
+    updateBackupMeta();
+    alert("還原完成");
+  }catch(err){
+    alert("還原失敗："+err.message);
+  }finally{
+    event.target.value="";
+  }
+}
+
+async function copyBackupToClipboard(){
+  const text=JSON.stringify(buildBackupObject(),null,2);
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("備份 JSON 已複製");
+  }catch(e){
+    alert("瀏覽器無法存取剪貼簿");
+  }
+}
+
+function showBackupSummary(){
+  const data=buildBackupObject();
+  alert(
+    `旅程：${trip.title}\n`+
+    `日期：${formatTripDateRange()}\n`+
+    `天數：${trip.days.length}\n`+`站點：${totalStops()}\n`+
+    `目前進度：${Math.min(state.current+1,totalStops())}/${totalStops()}\n`+
+    `已略過：${state.skipped?.length||0} 站`
+  );
+}
+
+function resetProgressOnly(){
+  if(!confirm("只重設旅程進度？行程內容不會被刪除。")) return;
+  state={current:0,arrived:false,skipped:[]};
+  saveState();
+  render();
+  alert("旅程進度已重設");
+}
+
+function clearAllTripData(){
+  if(!confirm("這會清除 Willy Trip 在此瀏覽器中的旅程與進度資料，確定繼續？")) return;
+  localStorage.removeItem("willyTripData");
+  localStorage.removeItem("willyTripState");
+  localStorage.removeItem("willyTripLastBackupAt");
+  localStorage.removeItem("willyTripLastRestoreAt");
+  trip=structuredClone(DEFAULT_TRIP);
+  state={current:0,arrived:false,skipped:[]};
+  render();
+  updateBackupMeta();
+  alert("資料已清除並回到預設旅程");
+}
+
+function formatStoredTime(v){
+  if(!v) return "尚無紀錄";
+  try{
+    return new Date(v).toLocaleString("zh-TW",{hour12:false});
+  }catch(e){return v}
+}
+
+function updateBackupMeta(){
+  const el=document.getElementById("backupMeta");
+  if(!el) return;
+  const lastBackup=localStorage.getItem("willyTripLastBackupAt");
+  const lastRestore=localStorage.getItem("willyTripLastRestoreAt");
+  el.innerHTML=
+    `<b>目前資料</b><br>`+
+    `旅程：${trip.title}<br>`+
+    `天數：${trip.days.length} 天<br>`+`站點：${totalStops()} 站<br>`+
+    `最後備份：${formatStoredTime(lastBackup)}<br>`+
+    `最後還原：${formatStoredTime(lastRestore)}`;
+}
+
 function render(){
+  const first=allStops()[0];
+  if(document.getElementById("heroFirstTime")) document.getElementById("heroFirstTime").textContent=first?.time||"--:--";
+  if(document.getElementById("heroFirstPlace")) document.getElementById("heroFirstPlace").textContent=first?`第一站｜${first.name}`:"尚未設定第一站";
+  if(document.getElementById("heroDayInfo")) document.getElementById("heroDayInfo").textContent=`${tripDayCount()} 天｜${trip.days.length} 個每日行程`;
+  if(document.getElementById("heroTransport")) document.getElementById("heroTransport").textContent=`🚗 ${trip.transport||"未設定交通"}`;
   document.getElementById("tripTitle").textContent=trip.title;
-  document.getElementById("tripDate").textContent="2026/09/11（星期五）";
-  document.getElementById("stopCount").textContent=`${trip.stops.length} 站`;
-  document.getElementById("nowTime").textContent="目前站點 "+(state.current+1)+" / "+trip.stops.length;
-  const s=trip.stops[Math.min(state.current,trip.stops.length-1)];
+  document.getElementById("tripDate").textContent=formatTripDateRange();
+  document.getElementById("stopCount").textContent=`${totalStops()} 站｜${tripDayCount()} 天`;
+  document.getElementById("nowTime").textContent="目前站點 "+Math.min(state.current+1,totalStops())+" / "+totalStops();
+  const s=currentFlatStop();
   document.getElementById("currentName").textContent=s? s.name:"行程完成";
   document.getElementById("currentMeta").textContent=s? `${s.time}｜${s.note}${state.arrived?"｜已抵達":""}`:"今天辛苦了";
   document.getElementById("currentAddr").textContent=s? "📍 "+s.address:"";
-  document.getElementById("progressBar").style.width=((state.current)/trip.stops.length*100)+"%";
+  document.getElementById("progressBar").style.width=(totalStops()?((state.current)/totalStops()*100):0)+"%";
   renderTimeline(); renderEdit(); renderNextPreview(); updateClock(); updateTripCountdown();
 }
 function renderTimeline(){
   const el=document.getElementById("timeline"); el.innerHTML="";
-  trip.stops.forEach((s,i)=>{
-    const d=document.createElement("div"); d.className="stop";
-    const skipped=state.skipped.includes(i);
-    d.innerHTML=`<div class="time">${s.time}</div>
-      <div><div class="stop-name">${skipped?"⏭️ ":""}${s.name}</div>
-      <div class="small">${s.note}</div><div class="small">📍 ${s.address}</div></div>
-      <button class="iconbtn" onclick="window.open('${navUrl(s.address)}','_blank')">導航</button>`;
-    el.appendChild(d);
+  let flatIndex=0;
+  const multiDay = trip.days.length > 1 || tripDayCount() > 1;
+
+  trip.days.forEach((day,di)=>{
+    const block=document.createElement("div");
+    block.className="day-block";
+
+    const title=document.createElement("div");
+    const heading = multiDay
+      ? `Day ${di+1}｜${day.title || "未命名行程"}`
+      : `${day.title || trip.title || "本日行程"}`;
+
+    title.innerHTML=
+      `<div class="day-block-title">${heading}</div>`+
+      `<div class="day-block-sub">${day.date || ""}</div>`;
+    block.appendChild(title);
+
+    const routeBits=[];
+    if(day.transport) routeBits.push(`🚗 ${day.transport}`);
+    if(day.startPoint) routeBits.push(`起點：${day.startPoint}`);
+    if(day.endPoint) routeBits.push(`終點：${day.endPoint}`);
+    if(routeBits.length){
+      const route=document.createElement("div");
+      route.className="day-route-info";
+      route.innerHTML=routeBits.map(x=>`<span class="day-route-chip">${x}</span>`).join("");
+      block.appendChild(route);
+    }
+
+    if(day.note){
+      const note=document.createElement("div");
+      note.className="note";
+      note.style.marginBottom="8px";
+      note.textContent=day.note;
+      block.appendChild(note);
+    }
+
+    (day.stops||[]).forEach((s,si)=>{
+      const d=document.createElement("div"); d.className="stop";
+      const skipped=state.skipped.includes(flatIndex);
+      d.innerHTML=`<div class="time">${s.time||"--:--"}</div>
+        <div><div class="stop-name">${skipped?"⏭️ ":""}${s.name||"未命名地點"}</div>
+        <div class="small">${s.note||""}</div><div class="small">📍 ${s.address||""}</div></div>
+        <button class="iconbtn" onclick="window.open('${navUrl(s.address||"")}','_blank')">導航</button>`;
+      block.appendChild(d);
+      flatIndex++;
+    });
+
+    if(day.lodging?.enabled){
+      const l=day.lodging;
+      const stay=document.createElement("div");
+      stay.className="lodging-card";
+      const timeParts=[];
+      if(l.checkIn) timeParts.push(`入住 ${l.checkIn}`);
+      if(l.checkOut) timeParts.push(`退房 ${l.checkOut}`);
+      if(l.bookingRef) timeParts.push(`訂房編號 ${l.bookingRef}`);
+      stay.innerHTML=
+        `<div class="lodging-card-title">🏨 ${l.name || "本晚住宿"}</div>`+
+        `<div class="lodging-card-meta">`+
+        `${l.address ? `📍 ${l.address}<br>` : ""}`+
+        `${timeParts.length ? timeParts.join("｜")+"<br>" : ""}`+
+        `${l.note || ""}`+
+        `</div>`+
+        `${l.address ? `<button class="iconbtn" style="margin-top:8px" onclick="window.open('${navUrl(l.address)}','_blank')">導航住宿</button>` : ""}`;
+      block.appendChild(stay);
+    }
+
+    el.appendChild(block);
   });
 }
 function renderEdit(){
-  document.getElementById("editTitle").value=trip.title;
-  document.getElementById("editDate").value=trip.date;
-  const el=document.getElementById("editStops"); el.innerHTML="";
-  trip.stops.forEach((s,i)=>{
-    const d=document.createElement("div"); d.className="edit-stop";
-    d.innerHTML=`<div class="formrow">
-      <input data-i="${i}" data-k="time" value="${s.time}">
-      <input data-i="${i}" data-k="name" value="${s.name}">
-    </div>
-    <input data-i="${i}" data-k="address" value="${s.address}" placeholder="地址">
-    <textarea data-i="${i}" data-k="note" placeholder="備註">${s.note}</textarea>`;
+  document.getElementById("editTitle").value=trip.title||"";
+  document.getElementById("editTransport").value=trip.transport||"";
+  document.getElementById("editStartDate").value=trip.startDate||"";
+  document.getElementById("editEndDate").value=trip.endDate||"";
+  document.getElementById("editDayCount").textContent=`${trip.days.length} 天`;
+  document.getElementById("editStopCount").textContent=`${totalStops()} 個行程點`;
+
+  const el=document.getElementById("editDays"); el.innerHTML="";
+  const multiDay = trip.days.length > 1 || tripDayCount() > 1;
+
+  trip.days.forEach((day,di)=>{
+    const lodging=day.lodging || {enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""};
+    const d=document.createElement("div"); d.className="day-editor";
+    d.innerHTML=`
+      <div class="day-head">
+        <div class="day-title">${multiDay ? `Day ${di+1}` : "本日行程"}</div>
+        <div class="day-tools">
+          <button onclick="duplicateTripDay(${di})">複製本日</button>
+          <button onclick="addStopToDay(${di})">＋ 行程點</button>
+          ${multiDay ? `<button onclick="deleteTripDay(${di})">刪除本日</button>` : ""}
+        </div>
+      </div>
+
+      <div class="formrow">
+        <input data-day="${di}" data-daykey="date" type="date" value="${day.date||""}">
+        <input data-day="${di}" data-daykey="title" value="${escapeHtmlAttr(day.title||"")}" placeholder="本日標題">
+      </div>
+
+      <div class="day-summary-grid">
+        <input data-day="${di}" data-daykey="transport" value="${escapeHtmlAttr(day.transport||"")}" placeholder="本日交通方式（留空＝沿用旅程設定）">
+        <input data-day="${di}" data-daykey="startPoint" value="${escapeHtmlAttr(day.startPoint||"")}" placeholder="本日出發地">
+        <input data-day="${di}" data-daykey="endPoint" value="${escapeHtmlAttr(day.endPoint||"")}" placeholder="本日結束地">
+        <textarea data-day="${di}" data-daykey="note" placeholder="本日備註">${day.note||""}</textarea>
+      </div>
+
+      <div class="lodging-editor">
+        <div class="lodging-head">
+          <b>🏨 住宿</b>
+          <label class="lodging-toggle">
+            <input type="checkbox" data-lodging-enabled="${di}" ${lodging.enabled?"checked":""} onchange="toggleLodgingFields(${di},this.checked)">
+            本晚住宿
+          </label>
+        </div>
+
+        <div id="lodgingFields-${di}" class="lodging-fields ${lodging.enabled?"":"hidden-fields"}">
+          <div class="formrow">
+            <input data-lodging-day="${di}" data-lodging-key="name" value="${escapeHtmlAttr(lodging.name||"")}" placeholder="住宿名稱">
+            <input data-lodging-day="${di}" data-lodging-key="address" value="${escapeHtmlAttr(lodging.address||"")}" placeholder="住宿地址">
+          </div>
+          <div class="formrow">
+            <input data-lodging-day="${di}" data-lodging-key="checkIn" type="time" value="${lodging.checkIn||""}" title="入住時間">
+            <input data-lodging-day="${di}" data-lodging-key="checkOut" type="time" value="${lodging.checkOut||""}" title="退房時間">
+          </div>
+          <input data-lodging-day="${di}" data-lodging-key="bookingRef" value="${escapeHtmlAttr(lodging.bookingRef||"")}" placeholder="訂房編號／訂單編號">
+          <textarea data-lodging-day="${di}" data-lodging-key="note" placeholder="住宿備註，例如停車、早餐、門禁">${lodging.note||""}</textarea>
+        </div>
+      </div>
+
+      <div id="dayStops-${di}" style="margin-top:10px"></div>`;
+
     el.appendChild(d);
+
+    const stopEl=d.querySelector(`#dayStops-${di}`);
+    (day.stops||[]).forEach((s,si)=>{
+      const sd=document.createElement("div"); sd.className="edit-stop";
+      sd.innerHTML=`
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <b>行程點 ${si+1}</b>
+          <button class="iconbtn" onclick="deleteStop(${di},${si})">刪除</button>
+        </div>
+        <div class="formrow">
+          <input data-day="${di}" data-stop="${si}" data-k="time" value="${s.time||""}" placeholder="時間">
+          <input data-day="${di}" data-stop="${si}" data-k="name" value="${escapeHtmlAttr(s.name||"")}" placeholder="地點名稱">
+        </div>
+        <input data-day="${di}" data-stop="${si}" data-k="address" value="${escapeHtmlAttr(s.address||"")}" placeholder="地址">
+        <textarea data-day="${di}" data-stop="${si}" data-k="note" placeholder="備註">${s.note||""}</textarea>`;
+      stopEl.appendChild(sd);
+    });
   });
+}
+function toggleLodgingFields(di,enabled){
+  trip.days[di].lodging.enabled=enabled;
+  const el=document.getElementById(`lodgingFields-${di}`);
+  if(el) el.classList.toggle("hidden-fields",!enabled);
+}
+function duplicateTripDay(di){
+  const source=structuredClone(trip.days[di]);
+  const d=new Date((source.date||trip.startDate)+"T00:00:00");
+  d.setDate(d.getDate()+1);
+  source.date=d.toISOString().slice(0,10);
+  source.title=source.title ? `${source.title}（複製）` : `第 ${di+2} 天`;
+  // Booking reference should not silently carry over.
+  if(source.lodging) source.lodging.bookingRef="";
+  trip.days.splice(di+1,0,source);
+  trip.endDate=trip.days[trip.days.length-1].date;
+  renderEdit();
+}
+function escapeHtmlAttr(s){
+  return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+function addTripDay(){
+  const last=trip.days[trip.days.length-1];
+  let nextDate=trip.startDate || new Date().toISOString().slice(0,10);
+  if(last?.date){
+    const d=new Date(last.date+"T00:00:00");
+    d.setDate(d.getDate()+1);
+    nextDate=d.toISOString().slice(0,10);
+  }
+  trip.days.push({
+    date:nextDate,
+    title:`第 ${trip.days.length+1} 天`,
+    transport:"",
+    startPoint:"",
+    endPoint:"",
+    note:"",
+    lodging:{enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
+    stops:[]
+  });
+  trip.endDate=nextDate;
+  renderEdit();
+}
+function deleteTripDay(di){
+  if(trip.days.length<=1){ alert("旅程至少要保留一天"); return; }
+  if(!confirm(`確定刪除 Day ${di+1}？`)) return;
+  trip.days.splice(di,1);
+  trip.startDate=trip.days[0]?.date || trip.startDate;
+  trip.endDate=trip.days[trip.days.length-1]?.date || trip.startDate;
+  renderEdit();
+}
+function addStopToDay(di){
+  trip.days[di].stops.push({time:"",name:"",address:"",note:"",stay:0});
+  renderEdit();
+}
+function deleteStop(di,si){
+  trip.days[di].stops.splice(si,1);
+  renderEdit();
 }
 function saveEdits(){
   trip.title=document.getElementById("editTitle").value.trim()||trip.title;
-  trip.date=document.getElementById("editDate").value||trip.date;
-  document.querySelectorAll("#editStops [data-i]").forEach(el=>{
-    trip.stops[+el.dataset.i][el.dataset.k]=el.value.trim();
+  trip.transport=document.getElementById("editTransport").value.trim()||"";
+  trip.startDate=document.getElementById("editStartDate").value||trip.startDate;
+  trip.endDate=document.getElementById("editEndDate").value||trip.endDate;
+
+  document.querySelectorAll("#editDays [data-daykey]").forEach(el=>{
+    const di=+el.dataset.day;
+    trip.days[di][el.dataset.daykey]=el.value.trim();
   });
+
+  document.querySelectorAll("#editDays [data-stop][data-k]").forEach(el=>{
+    const di=+el.dataset.day, si=+el.dataset.stop;
+    trip.days[di].stops[si][el.dataset.k]=el.value.trim();
+  });
+
+  document.querySelectorAll("#editDays [data-lodging-enabled]").forEach(el=>{
+    const di=+el.dataset.lodgingEnabled;
+    trip.days[di].lodging.enabled=el.checked;
+  });
+
+  document.querySelectorAll("#editDays [data-lodging-day][data-lodging-key]").forEach(el=>{
+    const di=+el.dataset.lodgingDay;
+    trip.days[di].lodging[el.dataset.lodgingKey]=el.value.trim();
+  });
+
+  // Re-sort days by date and keep trip range in sync.
+  trip.days.sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  if(trip.days.length){
+    trip.startDate=trip.days[0].date || trip.startDate;
+    trip.endDate=trip.days[trip.days.length-1].date || trip.endDate;
+  }
+
   saveTrip(); render(); alert("已儲存");
 }
 function resetTrip(){
   if(confirm("確定還原預設新竹行程？")){
-    trip=structuredClone(DEFAULT_TRIP); state={current:0,arrived:false,skipped:[]};
+    trip=structuredClone(DEFAULT_TRIP); state={current:0,arrived:false,skipped:[]}; migrateTripSchema();
     saveTrip(); saveState(); render();
   }
 }
 function navigateCurrent(){
-  const s=trip.stops[state.current]; if(s) window.open(navUrl(s.address),"_blank");
+  const s=currentFlatStop(); if(s) window.open(navUrl(s.address),"_blank");
 }
 function markArrived(){ state.arrived=true; saveState(); render(); }
 function goNext(){
-  if(state.current<trip.stops.length-1){state.current++;state.arrived=false}else{state.current=trip.stops.length;state.arrived=false}
+  if(state.current<totalStops()-1){state.current++;state.arrived=false}else{state.current=totalStops();state.arrived=false}
   saveState(); render();
 }
 function skipStop(){
@@ -506,22 +1061,29 @@ function skipStop(){
   goNext();
 }
 function switchView(btn,id){
-  ["homeView","timelineView","editView"].forEach(v=>document.getElementById(v).classList.add("hidden"));
+  ["homeView","timelineView","editView","dataView"].forEach(v=>document.getElementById(v).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active")); btn.classList.add("active");
 }
 function updateClock(){
   const now=new Date();
-  const tripDay = now.getFullYear()==2026 && now.getMonth()==8 && now.getDate()==11;
+  const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  const tripDayIndex=trip.days.findIndex(d=>d.date===today);
   const stat=document.getElementById("statusText"), sun=document.getElementById("sunsetText");
-  if(!tripDay){
-    stat.textContent="行程尚未開始";
+  if(tripDayIndex<0){
+    if(today < trip.startDate){
+      stat.textContent="行程尚未開始";
+    }else if(today > trip.endDate){
+      stat.textContent="旅程已結束";
+    }else{
+      stat.textContent="今天尚未設定行程";
+    }
     stat.className="status";
-    sun.textContent="🌅 9/11 預計日落 18:04";
+    sun.textContent=trip.sunset?`🌅 參考日落 ${trip.sunset}`:"";
     return;
   }
   const cur=now.getHours()*60+now.getMinutes();
-  const s=trip.stops[Math.min(state.current,trip.stops.length-1)];
+  const s=currentFlatStop();
   if(s){
     const diff=cur-mins(s.time);
     if(diff<=10){stat.textContent="目前大致準時";stat.className="status oktxt";}
@@ -532,7 +1094,11 @@ function updateClock(){
   sun.textContent=left>=0?`距離日落還有 ${Math.floor(left/60)} 小時 ${left%60} 分鐘`:"今日已日落";
 }
 function shareTrip(){
-  const text=`${trip.title}\n${trip.date}\n`+trip.stops.map(s=>`${s.time} ${s.name}`).join("\n");
+  let text=`${trip.title}\n${formatTripDateRange()}\n`;
+  trip.days.forEach((day,di)=>{
+    text+=`\nDay ${di+1}｜${day.date}｜${day.title||""}\n`;
+    (day.stops||[]).forEach(s=>{ text+=`${s.time||"--:--"} ${s.name||"未命名地點"}\n`; });
+  });
   if(navigator.share) navigator.share({title:trip.title,text});
   else navigator.clipboard.writeText(text).then(()=>alert("行程已複製"));
 }
