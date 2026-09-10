@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Willy Trip v1.9.6</title>
+<title>Willy Trip v1.9.7</title>
 <style>
 :root{
   --bg:#f5f6f8; --card:#fff; --text:#1b1d22; --muted:#6c7280; --line:#e6e8ec;
@@ -1441,7 +1441,7 @@ function navigateNextPreview(){
 function buildBackupObject(){
   return {
     schema:"willy-trip-backup",
-    version:"9.6",
+    version:"9.7",
     exportedAt:new Date().toISOString(),
     app:"Willy Trip",
     trip:trip,
@@ -3592,9 +3592,23 @@ function openMoreData(){
   const target=document.getElementById("moreContent");
   const source=document.getElementById("dataView");
   if(!target || !source) return;
-  target.innerHTML="";
-  while(source.firstChild) target.appendChild(source.firstChild);
-  updateBackupMeta();
+
+  // Keep the hidden template intact. Earlier versions moved its child nodes,
+  // so the second visit had nothing left to render until a page reload.
+  target.innerHTML=source.innerHTML;
+
+  const meta=target.querySelector("#backupMeta");
+  if(meta){
+    const lastBackup=localStorage.getItem("willyTripLastBackupAt");
+    const lastRestore=localStorage.getItem("willyTripLastRestoreAt");
+    meta.innerHTML=
+      `<b>目前資料</b><br>`+
+      `旅程：${trip.title}<br>`+
+      `天數：${trip.days.length} 天<br>`+
+      `站點：${totalStops()} 站<br>`+
+      `最後備份：${formatStoredTime(lastBackup)}<br>`+
+      `最後還原：${formatStoredTime(lastRestore)}`;
+  }
 }
 
 function openMoreDocuments(){
@@ -3610,7 +3624,7 @@ function showAboutWillyTrip(){
   if(!target) return;
   target.innerHTML=`<div class="card">
     <div class="section-title">ℹ️ 關於 Willy Trip</div>
-    <div class="note">Willy Trip v1.9.6<br>隨身出遊助手｜規劃負責管理、旅程負責檢視、行事曆負責跨旅程瀏覽。</div>
+    <div class="note">Willy Trip v1.9.7<br>隨身出遊助手｜規劃負責管理、旅程負責檢視、行事曆負責跨旅程瀏覽。</div>
   </div>`;
 }
 
