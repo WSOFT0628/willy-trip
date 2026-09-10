@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Willy Trip v1.8.1 Stable</title>
+<title>Willy Trip v1.9.6</title>
 <style>
 :root{
   --bg:#f5f6f8; --card:#fff; --text:#1b1d22; --muted:#6c7280; --line:#e6e8ec;
@@ -528,6 +528,114 @@ textarea{min-height:80px}
   #calendarMonthPicker{width:118px!important}
 }
 
+
+/* v1.9.x itinerary editor */
+.edit-stop{
+  position:relative;
+}
+.stop-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+}
+.stop-toolbar-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.drag-handle{
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:none;
+  font-size:18px;
+  line-height:1;
+  padding:4px 6px;
+  border-radius:8px;
+  background:#eef2f7;
+}
+.drag-handle:active{cursor:grabbing}
+.edit-stop.dragging{
+  opacity:.45;
+  transform:scale(.995);
+}
+.insert-between{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:7px 0;
+}
+.insert-between::before,
+.insert-between::after{
+  content:"";
+  height:1px;
+  background:#e4e8ef;
+  flex:1;
+}
+.insert-between button{
+  border:0;
+  background:#f3f6fb;
+  color:#245fc6;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:750;
+  cursor:pointer;
+}
+.stop-type-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+.stop-type-select{
+  width:100%;
+}
+.flex-note{
+  font-size:11px;
+  color:#9a6500;
+  margin-top:5px;
+}
+
+
+/* v1.9.x drag safety */
+.edit-stop input,
+.edit-stop textarea,
+.edit-stop select{
+  user-select:text;
+  -webkit-user-select:text;
+}
+.edit-stop input,
+.edit-stop textarea{
+  cursor:text;
+}
+
+
+/* v1.9.x share center */
+.share-modal-backdrop{
+  position:fixed;inset:0;background:rgba(15,23,42,.38);z-index:1200;
+  display:flex;align-items:center;justify-content:center;padding:14px;
+}
+.share-modal-backdrop.hidden{display:none}
+.share-sheet{
+  width:min(560px,100%);max-height:88vh;overflow:auto;background:#fff;
+  border-radius:20px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.22)
+}
+.share-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.share-title{font-size:20px;font-weight:900}
+.share-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.share-option{
+  border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;
+  text-align:left;cursor:pointer
+}
+.share-option .ico{font-size:24px;display:block;margin-bottom:7px}
+.share-option b{display:block}
+.share-option span{display:block;font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+.share-preview{margin-top:14px;background:#f7f9fc;border-radius:14px;padding:12px;font-size:12px;line-height:1.6;white-space:pre-wrap}
+@media(max-width:520px){.share-grid{grid-template-columns:1fr}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 </head>
@@ -538,7 +646,7 @@ textarea{min-height:80px}
       <div class="brand">🧭 Willy Trip</div>
       <div class="sub">隨身出遊助手</div>
     </div>
-    <button class="iconbtn" onclick="shareTrip()">分享</button>
+    <button class="iconbtn" onclick="openShareCenter()">分享</button>
   </div>
 
 
@@ -586,8 +694,9 @@ textarea{min-height:80px}
       </div>
 
       <div class="hero-route">
-        <div class="t" id="heroFirstTime">--:--</div><div class="place" id="heroFirstPlace">第一站</div>
-        <div class="t">09:15</div><div class="place">正式出發</div>
+        <div class="t" id="heroStartTime">--:--</div><div class="place" id="heroStartPlace">🏠 出發地</div>
+        <div class="t" id="heroFirstTime">--:--</div><div class="place" id="heroFirstPlace">📍 集合點</div>
+        <div class="t" id="heroFormalDepartureTime">--:--</div><div class="place">🛵 團體正式出發</div>
       </div>
 
       <div class="hero-stats">
@@ -606,7 +715,7 @@ textarea{min-height:80px}
 
     <div class="card" id="keyReminderCard">
       <div class="section-title">⭐ 關鍵提醒</div>
-      <div class="note">最重要節點：<b>16:40 左右離開 Bliss捲捲</b>；盡量不要晚於 17:00 才出發前往新月沙灣。</div>
+      <div class="note">彈性行程：<b>青青草原、20:00 後咖啡廳</b>。若當天想提早返程，可優先略過其中一站或兩站。</div>
     </div>
 
     <div class="card next-preview-card" id="nextPreviewCard">
@@ -702,9 +811,19 @@ textarea{min-height:80px}
         </div>
         <div class="trip-manager-actions">
           <button class="btn secondary" style="padding:10px 12px" onclick="document.getElementById('tripImportFile').click()">📄 匯入行程文件</button>
+          <button class="btn secondary" style="padding:10px 12px" onclick="toggleTextTripImporter()">📋 貼上文字行程</button>
           <button class="btn primary" style="padding:10px 12px" onclick="showNewTripForm()">＋ 新旅程</button>
           <input id="tripImportFile" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="importTripDocument(event)">
           <input id="tripAttachmentFile" type="file" accept=".docx,.pdf,.json,image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,application/json" style="display:none" onchange="handleTripAttachmentUpload(event)">
+        </div>
+      </div>
+      <div id="textTripImporter" class="import-preview" style="display:none">
+        <h3>📋 貼上文字行程</h3>
+        <div class="history-meta" style="margin-bottom:10px">支援「時間｜內容」、「地址：...」、「09:00～09:15」、「20:25左右」等格式。系統會先解析預覽，不會直接覆蓋資料。</div>
+        <textarea id="textTripInput" style="width:100%;min-height:260px" placeholder="把朋友傳來的完整行程直接貼在這裡…"></textarea>
+        <div class="import-actions">
+          <button class="btn primary" onclick="parsePastedTrip()">解析預覽</button>
+          <button class="btn secondary" onclick="toggleTextTripImporter(false)">取消</button>
         </div>
       </div>
       <div id="tripImportPreview"></div><div id="plannerManager"></div>
@@ -899,6 +1018,47 @@ textarea{min-height:80px}
   </div>
 </div>
 
+
+<div id="shareModal" class="share-modal-backdrop hidden" onclick="closeShareCenter(event)">
+  <div class="share-sheet" onclick="event.stopPropagation()">
+    <div class="share-head">
+      <div>
+        <div class="small">Willy Trip</div>
+        <div class="share-title">📤 分享旅程</div>
+      </div>
+      <button class="iconbtn" onclick="closeShareCenter()">✕</button>
+    </div>
+
+    <div class="share-grid">
+      <button class="share-option" onclick="shareTripText()">
+        <span class="ico">📋</span>
+        <b>分享行程文字</b>
+        <span>產生目前旅程摘要，交給 LINE、Discord、Messenger 等。</span>
+      </button>
+
+      <button class="share-option" onclick="copyTripText()">
+        <span class="ico">📑</span>
+        <b>複製行程文字</b>
+        <span>直接複製完整文字行程到剪貼簿。</span>
+      </button>
+
+      <button class="share-option" onclick="exportCurrentTripFile()">
+        <span class="ico">📦</span>
+        <b>匯出旅程檔</b>
+        <span>輸出 Willy Trip JSON，可供其他裝置匯入。</span>
+      </button>
+
+      <button class="share-option" onclick="shareWebsite()">
+        <span class="ico">🔗</span>
+        <b>分享 Willy Trip 網站</b>
+        <span>只分享網站網址，不包含你目前的旅程資料。</span>
+      </button>
+    </div>
+
+    <div class="share-preview" id="sharePreview"></div>
+  </div>
+</div>
+
 <div class="bottom">
   <div class="bottom-inner" style="grid-template-columns:repeat(5,minmax(0,1fr))">
     <button class="navbtn active" data-view="homeView" onclick="switchView(this,'homeView')"><span class="tab-icon">🏠</span><span class="tab-label">今日</span></button>
@@ -920,17 +1080,23 @@ const DEFAULT_TRIP = {
     {
       date:"2026-09-11",
       title:"新竹一日遊",
-      lodging:"",
-      note:"",
+      transport:"機車",
+      startPoint:"7-ELEVEN 嘉添門市",
+      endPoint:"三峽",
+      lodging:{enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
+      note:"如果想早些回去，可不排青青草原或咖啡廳。",
       stops:[
-        {time:"09:00",name:"7-ELEVEN 嘉添門市",address:"新北市三峽區嘉添路109-2號1樓",note:"集合",stay:15},
-        {time:"10:30",name:"內灣老街",address:"新竹縣橫山鄉內灣老街",note:"范阿嬤野薑花肉粽",stay:30},
-        {time:"12:00",name:"享來初",address:"新竹市北區東門市場1060號攤位",note:"午餐，預留完整1小時",stay:60},
-        {time:"13:10",name:"鴨肉許（中正店）",address:"新竹市北區中正路212號",note:"午餐，預留完整1小時",stay:60},
-        {time:"14:40",name:"青青草原",address:"新竹市香山區草原路",note:"散步、拍照、看風景",stay:35},
-        {time:"15:45",name:"Bliss捲捲",address:"新竹市北區東大路四段315號店面B",note:"下午茶＋休息",stay:55},
-        {time:"17:10",name:"新月沙灣",address:"新竹縣竹北市鳳岡路五段155巷68號",note:"沙灘、拍照、看夕陽；可導航新月沙灣停車場",stay:60},
-        {time:"18:45",name:"Big City 遠東巨城購物中心",address:"新竹市東區中央路229號",note:"晚餐、逛街、休息",stay:105}
+        {time:"09:00",endTime:"09:15",timeMode:"exact",name:"7-ELEVEN 嘉添門市",address:"新北市三峽區嘉添路109-2號1樓",note:"集合；09:15 出發",stay:15,priority:"key"},
+        {time:"10:30",endTime:"11:00",timeMode:"exact",name:"內灣老街",address:"新竹縣橫山鄉內灣村中正路",note:"老街走走＋范阿嬤野薑花肉粽",stay:30,priority:"normal"},
+        {time:"12:00",endTime:"13:00",timeMode:"exact",name:"享來初",address:"新竹市北區東門市場1060號攤位",note:"包含停車、排隊、等餐",stay:60,priority:"normal"},
+        {time:"13:10",endTime:"14:10",timeMode:"exact",name:"鴨肉許（中正店）",address:"新竹市北區中正路212號",note:"包含停車、排隊、等餐",stay:60,priority:"normal"},
+        {time:"14:40",endTime:"15:15",timeMode:"exact",name:"青青草原",address:"新竹市香山區草原路",note:"散步、拍照",stay:35,priority:"flex"},
+        {time:"15:45",endTime:"16:40",timeMode:"around",name:"Bliss捲捲＋南寮漁港／波光市集",address:"新竹市北區東大路四段315號店面B",note:"Bliss捲捲＋順便看看南寮漁港／波光市集",stay:55,priority:"normal"},
+        {time:"17:10",endTime:"18:30",timeMode:"around",name:"新月沙灣",address:"新竹縣竹北市鳳岡路五段155巷68號",note:"散步、看夕陽",stay:80,priority:"key"},
+        {time:"19:00",endTime:"20:00",timeMode:"range",name:"竹東邱記排骨酥麵－竹北店",address:"",note:"約 19:00～19:15 抵達；晚餐至約 20:00",stay:60,priority:"normal"},
+        {time:"20:00",endTime:"21:15",timeMode:"after",name:"咖啡廳（視時間安排）",address:"",note:"視時間安排；約 21:00～21:15 離開",stay:75,priority:"flex"},
+        {time:"21:45",endTime:"22:20",timeMode:"range",name:"萊爾富－龍潭石門山店",address:"",note:"約 21:45～22:00 抵達，休息約 15～20 分鐘；約 22:10～22:20 離開",stay:20,priority:"normal"},
+        {time:"22:40",endTime:"23:00",timeMode:"range",name:"三峽",address:"新北市三峽區",note:"預計約 22:40～23:00 抵達",stay:0,priority:"normal"}
       ]
     }
   ]
@@ -1024,6 +1190,33 @@ function migrateTripSchema(){
     if(day.transport === undefined) day.transport = "";
     if(day.startPoint === undefined) day.startPoint = "";
     if(day.endPoint === undefined) day.endPoint = "";
+    if(day.meetingPoint === undefined) day.meetingPoint = "";
+    if(day.meetingAddress === undefined) day.meetingAddress = "";
+    if(day.meetingTime === undefined) day.meetingTime = "";
+    if(day.departureTime === undefined) day.departureTime = "";
+
+    // v1.9.4: migrate an existing "集合" stop into formal meeting-point metadata.
+    // The stop remains in the itinerary so no existing data is lost.
+    if(!day.meetingPoint){
+      const meetingStop=(day.stops||[]).find(s=>
+        /集合/.test(String(s.note||"")) ||
+        /集合/.test(String(s.name||"")) ||
+        s.priority==="meeting"
+      );
+      if(meetingStop){
+        day.meetingPoint=String(meetingStop.name||"").replace(/集合$/,"").trim();
+        day.meetingAddress=meetingStop.address||"";
+        day.meetingTime=meetingStop.time||"";
+        day.departureTime=meetingStop.endTime||"";
+        if(meetingStop.priority==="key") meetingStop.priority="meeting";
+      }
+    }
+
+    (day.stops||[]).forEach(stop=>{
+      if(stop.endTime===undefined) stop.endTime="";
+      if(stop.timeMode===undefined) stop.timeMode="exact";
+      if(stop.priority===undefined) stop.priority="normal";
+    });
 
     // Previous versions stored lodging as a plain string.
     if(typeof day.lodging === "string"){
@@ -1135,28 +1328,110 @@ function updateTripCountdown(){
   }
 }
 function openTimeline(){
-  const b=document.querySelector('[data-view="timelineView"]');
-  switchView(b,"timelineView");
+  const b=document.querySelector('[data-view="journeyView"]');
+  switchView(b,"journeyView");
+  showJourneySection("timeline");
 }
+
+function getTodayTripDay(){
+  return trip.days?.[0] || null;
+}
+function getMeetingStop(day=getTodayTripDay()){
+  if(!day) return null;
+  if(day.meetingPoint){
+    return {
+      time:day.meetingTime||"",
+      endTime:day.departureTime||"",
+      name:day.meetingPoint,
+      address:day.meetingAddress||"",
+      note:"集合",
+      _meeting:true
+    };
+  }
+  return (day.stops||[]).find(s=>/集合/.test(String(s.note||"")) || s.priority==="meeting") || null;
+}
+function getDepartureStop(day=getTodayTripDay()){
+  if(!day) return null;
+  const start=String(day.startPoint||"").trim();
+  if(!start) return null;
+  return (day.stops||[]).find(s=>{
+    const n=String(s.name||"").trim();
+    return n===start || n.includes(start) || start.includes(n);
+  }) || {time:"",name:start,address:"",note:""};
+}
+function getFirstItineraryStop(day=getTodayTripDay()){
+  if(!day) return null;
+  const meeting=getMeetingStop(day);
+  const departure=getDepartureStop(day);
+  return (day.stops||[]).find(s=>{
+    if(departure && s===departure) return false;
+    if(meeting){
+      const sameMeeting =
+        (meeting.address && s.address===meeting.address) ||
+        (meeting.name && s.name===meeting.name) ||
+        /集合/.test(String(s.note||"")) ||
+        s.priority==="meeting";
+      if(sameMeeting) return false;
+    }
+    return true;
+  }) || null;
+}
+
 function navigateMeeting(){
-  const s=allStops()[0]; if(s) window.open(navUrl(s.address),"_blank");
+  const s=getMeetingStop();
+  if(s?.address) window.open(navUrl(s.address),"_blank");
+  else alert("尚未設定集合點地址");
 }
 function getNextPreviewIndex(){
-  if(state.current<=0) return Math.min(1,totalStops()-1);
+  const flat=allStops();
+  if(state.current<=0){
+    const firstReal=getFirstItineraryStop();
+    const idx=flat.indexOf(firstReal);
+    return idx>=0?idx:0;
+  }
   return Math.min(state.current+1,totalStops()-1);
 }
 function renderNextPreview(){
-  const i=getNextPreviewIndex(), s=allStops()[i];
+  const flat=allStops();
+  if(!flat.length) return;
+
+  const now=new Date();
+  const departAt=new Date(`${trip.startDate}T${getTodayTripDay()?.departureTime||"09:15"}:00+08:00`);
+  let s=null;
+
+  if(now < departAt){
+    s=getFirstItineraryStop();
+  }else{
+    const idx=getNextPreviewIndex();
+    s=flat[idx] || flat[flat.length-1];
+  }
+
   if(!s) return;
-  document.getElementById("nextPreviewName").textContent=s.name;
-  document.getElementById("nextPreviewMeta").textContent=`${s.time}｜${s.note}`;
-  const label=document.querySelector(".next-preview-card .sub");
-  if(label){
-    const now=new Date();
-    const depart=new Date(`${trip.startDate}T09:15:00+08:00`);
-    label.textContent=now<depart?"第一站預覽":"下一站";
+
+  const nameEl=document.getElementById("nextPreviewName");
+  const metaEl=document.getElementById("nextPreviewMeta");
+  const card=document.getElementById("nextPreviewCard");
+  const label=card?.querySelector(".sub");
+  const navBtn=card?.querySelector(".iconbtn");
+
+  if(label) label.textContent=now < departAt ? "第一站預覽" : "下一站";
+  if(nameEl) nameEl.textContent=s.name||"未命名地點";
+
+  let time=s.time||"--:--";
+  if(s.endTime) time+=`～${s.endTime}`;
+  if(metaEl) metaEl.textContent=`${time}${s.note?`｜${s.note}`:""}`;
+
+  if(navBtn){
+    navBtn.textContent="導航";
+    navBtn.onclick=()=>navigateAddress(s.address);
+    navBtn.style.display=s.address?"":"none";
   }
 }
+function navigateAddress(address){
+  if(!address){ alert("此行程點尚未設定地址"); return; }
+  window.open(navUrl(address),"_blank");
+}
+
 function navigateNextPreview(){
   const s=allStops()[getNextPreviewIndex()];
   if(s) window.open(navUrl(s.address),"_blank");
@@ -1166,7 +1441,7 @@ function navigateNextPreview(){
 function buildBackupObject(){
   return {
     schema:"willy-trip-backup",
-    version:"8.1",
+    version:"9.6",
     exportedAt:new Date().toISOString(),
     app:"Willy Trip",
     trip:trip,
@@ -2056,7 +2331,7 @@ function createBlankTrip(title,startDate,endDate,transport){
     transport:transport||"",
     sunset:"",
     days:[{
-      date:d,title:"第 1 天",transport:"",startPoint:"",endPoint:"",note:"",
+      date:d,title:"第 1 天",transport:"",startPoint:"",meetingPoint:"",meetingAddress:"",meetingTime:"",departureTime:"",endPoint:"",note:"",
       lodging:{enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
       stops:[]
     }]
@@ -2103,7 +2378,7 @@ function createManagedTrip(){
   while(cursor<=last){
     const date=isoDateLocal(cursor);
     rec.trip.days.push({
-      date,title:`第 ${dayNo} 天`,transport:"",startPoint:"",endPoint:"",note:"",
+      date,title:`第 ${dayNo} 天`,transport:"",startPoint:"",meetingPoint:"",meetingAddress:"",meetingTime:"",departureTime:"",endPoint:"",note:"",
       lodging:{enabled:date!==end,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
       stops:[]
     });
@@ -2384,6 +2659,226 @@ function parseLegacyTripText(text,fileName){
   };
 }
 
+
+function toggleTextTripImporter(force){
+  const box=document.getElementById("textTripImporter");
+  if(!box) return;
+  const show = force===undefined ? box.style.display==="none" : !!force;
+  box.style.display=show?"block":"none";
+  if(show) setTimeout(()=>document.getElementById("textTripInput")?.focus(),50);
+}
+
+function normalizeTripTime(raw){
+  raw=String(raw||"").trim().replace(/：/g,":");
+  const around=/左右|約/.test(raw);
+  const after=/之後/.test(raw);
+  const times=[...raw.matchAll(/(\d{1,2}):(\d{2})/g)].map(m=>`${String(m[1]).padStart(2,"0")}:${m[2]}`);
+  return {
+    start:times[0]||"",
+    end:times[1]||"",
+    mode:after?"after":(times.length>1?"range":(around?"around":"exact"))
+  };
+}
+
+function cleanTripActionName(s){
+  return String(s||"")
+    .replace(/^抵達\s*/,"")
+    .replace(/^到達\s*/,"")
+    .replace(/^從.+?出發(?:前往.*)?$/,"")
+    .trim();
+}
+
+function samePlaceName(a,b){
+  const norm=s=>String(s||"").replace(/[（）()／/＋+\s－—-]/g,"").replace(/左右|附近|中正店/g,"").toLowerCase();
+  const x=norm(a), y=norm(b);
+  return !!x && !!y && (x===y || x.includes(y) || y.includes(x));
+}
+
+function parsePastedTripText(text){
+  const lines=String(text||"").replace(/\r/g,"").split("\n").map(x=>x.trim()).filter(Boolean);
+  if(!lines.length) throw new Error("請先貼上行程文字");
+
+  const head=lines[0];
+  let startDate="";
+  let dm=head.match(/(\d{4})\s*\/\s*(\d{1,2})\s*\/\s*(\d{1,2})/);
+  if(dm) startDate=`${dm[1]}-${String(dm[2]).padStart(2,"0")}-${String(dm[3]).padStart(2,"0")}`;
+
+  let title=head.replace(/^\d{4}\s*\/\s*\d{1,2}\s*\/\s*\d{1,2}\s*[（(][^）)]*[）)]\s*/,"").trim();
+  if(!title) title="未命名旅程";
+
+  const day={
+    date:startDate,
+    title:title.replace(/新竹機車一日遊/,"新竹一日遊"),
+    transport:/機車/.test(title)?"機車":"",
+    startPoint:"",
+    meetingPoint:"",
+    meetingAddress:"",
+    meetingTime:"",
+    departureTime:"",
+    endPoint:"",
+    note:"",
+    lodging:{enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
+    stops:[]
+  };
+
+  let current=null;
+  const addNote=(stop,note)=>{
+    if(!stop || !note) return;
+    stop.note=(stop.note?stop.note+"；":"")+note;
+  };
+
+  for(let i=1;i<lines.length;i++){
+    const line=lines[i];
+
+    if(/^地址\s*[:：]/.test(line)){
+      if(current) current.address=line.replace(/^地址\s*[:：]\s*/,"").trim();
+      continue;
+    }
+
+    const tm=line.match(/^(.+?)\s*[｜|]\s*(.+)$/);
+    if(tm && /\d{1,2}[:：]\d{2}/.test(tm[1])){
+      const timeInfo=normalizeTripTime(tm[1]);
+      const action=tm[2].trim();
+
+      // Departure lines close the preceding stop instead of becoming noisy standalone cards.
+      if(/^(?:從.+?出發|離開)/.test(action)){
+        if(current && timeInfo.start) current.endTime=timeInfo.start;
+        if(/前往/.test(action)) addNote(current,action);
+        continue;
+      }
+
+      let name=cleanTripActionName(action);
+      if(!name) continue;
+
+      // A later duration line for the same place enriches the previous arrival card.
+      const previous=day.stops[day.stops.length-1];
+      if(previous && samePlaceName(previous.name,name) && timeInfo.start){
+        if(!previous.time) previous.time=timeInfo.start;
+        if(timeInfo.end) previous.endTime=timeInfo.end;
+        if(timeInfo.mode!=="exact") previous.timeMode=timeInfo.mode;
+        current=previous;
+        continue;
+      }
+
+      current={
+        time:timeInfo.start,
+        endTime:timeInfo.end,
+        timeMode:timeInfo.mode,
+        name,
+        address:"",
+        note:"",
+        stay:0,
+        priority:"normal"
+      };
+
+      // Known semantic hints from natural-language itinerary.
+      if(/集合/.test(action)){
+        current.name=name.replace(/集合$/,"").trim();
+        current.priority="key";
+        addNote(current,"集合");
+      }
+      if(/新月沙灣/.test(current.name)) current.priority="key";
+      if(/青青草原/.test(current.name)) current.priority="flex";
+
+      day.stops.push(current);
+      continue;
+    }
+
+    // Non-timed lines become notes on the current itinerary point.
+    if(current){
+      addNote(current,line);
+      if(/前往/.test(line) && !current.note.includes(line)) addNote(current,line);
+    }else{
+      day.note+=(day.note?"；":"")+line;
+    }
+  }
+
+  if(!startDate) throw new Error("沒有辨識到旅程日期，例如 2026/9/11");
+  if(!day.stops.length) throw new Error("沒有辨識到「09:00｜地點」格式的行程點");
+
+  // Infer start/end point and formal meeting point.
+  day.startPoint=day.stops[0]?.name||"";
+  const meetingStop=day.stops.find(s=>/集合/.test(String(s.note||"")) || /集合/.test(String(s.name||"")));
+  if(meetingStop){
+    day.meetingPoint=String(meetingStop.name||"").replace(/集合$/,"").trim();
+    day.meetingAddress=meetingStop.address||"";
+    day.meetingTime=meetingStop.time||"";
+    day.departureTime=meetingStop.endTime||"";
+    meetingStop.priority="meeting";
+  }
+  const last=day.stops[day.stops.length-1];
+  if(/三峽/.test(last?.name||"")) day.endPoint=last.name;
+
+  // Calculate stay minutes when both times exist.
+  for(const s of day.stops){
+    if(s.time && s.endTime){
+      const [h1,m1]=s.time.split(":").map(Number), [h2,m2]=s.endTime.split(":").map(Number);
+      let mins=(h2*60+m2)-(h1*60+m1);
+      if(mins>=0) s.stay=mins;
+    }
+  }
+
+  return {
+    title,
+    startDate,
+    endDate:startDate,
+    transport:day.transport,
+    sunset:"",
+    people:"",
+    importSource:"貼上文字",
+    days:[day]
+  };
+}
+
+function parsePastedTrip(){
+  const text=document.getElementById("textTripInput")?.value||"";
+  const preview=document.getElementById("tripImportPreview");
+  try{
+    const parsed=parsePastedTripText(text);
+    pendingTripImport={trip:parsed,sourceDocId:null,fileName:"貼上文字",sourceType:"text"};
+    renderTripImportPreview();
+  }catch(e){
+    pendingTripImport=null;
+    if(preview) preview.innerHTML=`<div class="import-error">文字行程解析失敗：${escapeHtmlAttr(e.message)}</div>`;
+  }
+}
+
+function findMatchingTripForImport(t){
+  return trips.find(r=>{
+    const sameDate=(r.trip?.startDate||"")===(t.startDate||"");
+    const a=String(r.trip?.title||"").replace(/\s/g,"");
+    const b=String(t.title||"").replace(/\s/g,"");
+    return sameDate && (a===b || a.includes("新竹機車一日遊") && b.includes("新竹機車一日遊"));
+  });
+}
+
+function updateMatchingTripFromImport(){
+  if(!pendingTripImport) return;
+  const match=findMatchingTripForImport(pendingTripImport.trip);
+  if(!match){ alert("找不到相同日期／名稱的既有旅程，請使用「匯入旅程」建立新旅程。"); return; }
+  if(!confirm(`確定用這份文字行程更新「${match.trip?.title||"旅程"}」？\n\n既有旅程的行程內容會被新版取代。`)) return;
+
+  match.trip=structuredClone(pendingTripImport.trip);
+  match.state={current:0,arrived:false,skipped:[]};
+  match.updatedAt=new Date().toISOString();
+  match.archived=false;
+
+  if(match.id===activeTripId){
+    trip=structuredClone(match.trip);
+    state=structuredClone(match.state);
+  }
+  persistTripCollection();
+  pendingTripImport=null;
+  const host=document.getElementById("tripImportPreview");
+  if(host) host.innerHTML="";
+  toggleTextTripImporter(false);
+  renderPlannerManager();
+  renderCalendar();
+  ensureCorrectHomeTrip();
+  render();
+  alert("既有旅程已更新完成。");
+}
+
 async function saveHistoricalSourceFile(file){
   try{
     const db=await openHistoryDb();
@@ -2445,10 +2940,15 @@ function renderTripImportPreview(){
       <span class="badge">${lodgings} 筆住宿</span>
       <span class="badge">來源文件：${escapeHtmlAttr(pendingTripImport.fileName)}</span>
     </div>
-    ${t.days.map((d,i)=>`<div class="import-day"><b>Day ${i+1}｜${escapeHtmlAttr(d.title||"")}</b><br>${escapeHtmlAttr(d.date)}｜${d.stops.length} 個行程點${d.lodging?.name?`｜🏨 ${escapeHtmlAttr(d.lodging.name)}`:""}</div>`).join("")}
+    ${t.days.map((d,i)=>`<div class="import-day">
+      <b>${t.days.length>1?`Day ${i+1}｜`:""}${escapeHtmlAttr(d.title||"")}</b><br>
+      ${escapeHtmlAttr(d.date)}｜${d.stops.length} 個行程點${d.lodging?.name?`｜🏨 ${escapeHtmlAttr(d.lodging.name)}`:""}
+      ${pendingTripImport.sourceType==="text"?`<div style="margin-top:8px">${d.stops.map(s=>`<div style="padding:5px 0;border-top:1px solid #edf0f5"><b>${escapeHtmlAttr(s.time||"--:--")}${s.endTime?`～${escapeHtmlAttr(s.endTime)}`:""}</b>　${s.priority==="key"?"🔴 ":s.priority==="flex"?"🟡 ":""}${escapeHtmlAttr(s.name||"")}</div>`).join("")}</div>`:""}
+    </div>`).join("")}
     <div class="import-actions">
-      <button class="btn primary" onclick="commitTripImport('auto')">匯入旅程</button>
-      <button class="btn secondary" onclick="commitTripImport('active')">匯入並立即編輯</button>
+      ${findMatchingTripForImport(t)?'<button class="btn primary" onclick="updateMatchingTripFromImport()">🔄 更新既有旅程</button>':""}
+      <button class="btn ${findMatchingTripForImport(t)?'secondary':'primary'}" onclick="commitTripImport('auto')">＋ 建立新旅程</button>
+      <button class="btn secondary" onclick="commitTripImport('active')">建立並立即編輯</button>
       <button class="btn secondary" onclick="cancelTripImport()">取消</button>
     </div>
   </div>`;
@@ -2561,9 +3061,28 @@ function renderReadOnlyTrip(record){
 }
 
 function render(){
-  const first=allStops()[0];
-  if(document.getElementById("heroFirstTime")) document.getElementById("heroFirstTime").textContent=first?.time||"--:--";
-  if(document.getElementById("heroFirstPlace")) document.getElementById("heroFirstPlace").textContent=first?`第一站｜${first.name}`:"尚未設定第一站";
+  const day=getTodayTripDay();
+  const departure=getDepartureStop(day);
+  const meeting=getMeetingStop(day);
+
+  const startTimeEl=document.getElementById("heroStartTime");
+  const startPlaceEl=document.getElementById("heroStartPlace");
+  if(startTimeEl) startTimeEl.textContent=departure?.time || "--:--";
+  if(startPlaceEl) startPlaceEl.textContent=departure
+    ? `🏠 從${departure.name}出發`
+    : "🏠 尚未設定出發地";
+
+  if(document.getElementById("heroFirstTime")) {
+    document.getElementById("heroFirstTime").textContent=meeting?.time || "--:--";
+  }
+  if(document.getElementById("heroFirstPlace")) {
+    document.getElementById("heroFirstPlace").textContent=meeting
+      ? `📍 集合｜${meeting.name}`
+      : "📍 尚未設定集合點";
+  }
+
+  const formalTime=document.getElementById("heroFormalDepartureTime");
+  if(formalTime) formalTime.textContent=day?.departureTime || meeting?.endTime || "--:--";
   if(document.getElementById("heroTransport")) document.getElementById("heroTransport").textContent=`🚗 ${trip.transport||"未設定交通"}`;
   { const el=document.getElementById("tripTitle"); if(el) el.textContent=trip.title; }
   {
@@ -2618,8 +3137,10 @@ function renderTimeline(){
 
     const routeBits=[];
     if(day.transport) routeBits.push(`🚗 ${day.transport}`);
-    if(day.startPoint) routeBits.push(`起點：${day.startPoint}`);
-    if(day.endPoint) routeBits.push(`終點：${day.endPoint}`);
+    if(day.startPoint) routeBits.push(`🏠 出發地：${day.startPoint}`);
+    if(day.meetingPoint) routeBits.push(`📍 集合：${day.meetingTime?day.meetingTime+" ":""}${day.meetingPoint}`);
+    if(day.departureTime) routeBits.push(`🛵 正式出發：${day.departureTime}`);
+    if(day.endPoint) routeBits.push(`🏁 終點：${day.endPoint}`);
     if(routeBits.length){
       const route=document.createElement("div");
       route.className="day-route-info";
@@ -2641,8 +3162,12 @@ function renderTimeline(){
       d.dataset.stopIndex=si;
       d.dataset.relationType="stop";
       const skipped=state.skipped.includes(flatIndex);
-      d.innerHTML=`<div class="time">${s.time||"--:--"}</div>
-        <div><div class="stop-name">${skipped?"⏭️ ":""}${s.name||"未命名地點"}</div>
+      const timeLabel = s.timeMode==="after"
+        ? `${s.time||"--:--"} 後`
+        : (s.endTime ? `${s.time||"--:--"}～${s.endTime}` : (s.time||"--:--"));
+      const priorityIcon = s.priority==="key"?"🔴 ":s.priority==="flex"?"🟡 ":"";
+      d.innerHTML=`<div class="time">${timeLabel}</div>
+        <div><div class="stop-name">${skipped?"⏭️ ":""}${priorityIcon}${s.name||"未命名地點"}</div>
         <div class="small">${s.note||""}</div><div class="small">📍 ${s.address||""}</div></div>
         <button class="iconbtn" onclick="window.open('${navUrl(s.address||"")}','_blank')">導航</button>`;
       block.appendChild(d);
@@ -2704,9 +3229,24 @@ function renderEdit(){
 
       <div class="day-summary-grid">
         <input data-day="${di}" data-daykey="transport" value="${escapeHtmlAttr(day.transport||"")}" placeholder="本日交通方式（留空＝沿用旅程設定）">
-        <input data-day="${di}" data-daykey="startPoint" value="${escapeHtmlAttr(day.startPoint||"")}" placeholder="本日出發地">
+        <input data-day="${di}" data-daykey="startPoint" value="${escapeHtmlAttr(day.startPoint||"")}" placeholder="🏠 個人出發地，例如：家">
         <input data-day="${di}" data-daykey="endPoint" value="${escapeHtmlAttr(day.endPoint||"")}" placeholder="本日結束地">
         <textarea data-day="${di}" data-daykey="note" placeholder="本日備註">${day.note||""}</textarea>
+      </div>
+
+      <div class="lodging-editor meeting-editor">
+        <div class="lodging-head">
+          <b>📍 集合設定</b>
+          <span class="small">多人出遊時的共同集合資訊</span>
+        </div>
+        <div class="formrow">
+          <input data-day="${di}" data-daykey="meetingPoint" value="${escapeHtmlAttr(day.meetingPoint||"")}" placeholder="集合點，例如：7-ELEVEN 嘉添門市">
+          <input data-day="${di}" data-daykey="meetingAddress" value="${escapeHtmlAttr(day.meetingAddress||"")}" placeholder="集合點地址">
+        </div>
+        <div class="formrow">
+          <label class="time-field"><span>集合時間</span><input data-day="${di}" data-daykey="meetingTime" type="time" value="${day.meetingTime||""}"></label>
+          <label class="time-field"><span>團體正式出發</span><input data-day="${di}" data-daykey="departureTime" type="time" value="${day.departureTime||""}"></label>
+        </div>
       </div>
 
       <div class="lodging-editor">
@@ -2738,20 +3278,96 @@ function renderEdit(){
 
     const stopEl=d.querySelector(`#dayStops-${di}`);
     (day.stops||[]).forEach((s,si)=>{
-      const sd=document.createElement("div"); sd.className="edit-stop";
+      const insert=document.createElement("div");
+      insert.className="insert-between";
+      insert.innerHTML=`<button onclick="insertStopAt(${di},${si})">＋ 在此插入</button>`;
+      stopEl.appendChild(insert);
+
+      const sd=document.createElement("div");
+      sd.className="edit-stop";
+      sd.draggable=false;
+      sd.dataset.dayIndex=di;
+      sd.dataset.stopIndex=si;
+
+      sd.addEventListener("dragover",e=>{
+        if(e.dataTransfer?.types?.includes("application/x-willy-trip-stop")){
+          e.preventDefault();
+          e.dataTransfer.dropEffect="move";
+        }
+      });
+      sd.addEventListener("drop",e=>{
+        if(!e.dataTransfer?.types?.includes("application/x-willy-trip-stop")) return;
+        e.preventDefault();
+        try{
+          const data=JSON.parse(e.dataTransfer.getData("application/x-willy-trip-stop"));
+          if(data.dayIndex===di) moveStopWithinDay(di,data.stopIndex,si);
+        }catch(err){}
+      });
+
       sd.innerHTML=`
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <b>行程點 ${si+1}</b>
-          <button class="iconbtn" onclick="deleteStop(${di},${si})">刪除</button>
+        <div class="stop-toolbar">
+          <div class="stop-toolbar-left">
+            <span class="drag-handle" title="拖曳排序">☰</span>
+            <b>行程點 ${si+1}</b>
+          </div>
+          <div class="day-tools">
+            <button onclick="duplicateStop(${di},${si})">複製</button>
+            <button onclick="deleteStop(${di},${si})">刪除</button>
+          </div>
         </div>
+
         <div class="formrow">
-          <input data-day="${di}" data-stop="${si}" data-k="time" value="${s.time||""}" placeholder="時間">
-          <input data-day="${di}" data-stop="${si}" data-k="name" value="${escapeHtmlAttr(s.name||"")}" placeholder="地點名稱">
+          <input data-day="${di}" data-stop="${si}" data-k="time" value="${s.time||""}" placeholder="開始時間">
+          <input data-day="${di}" data-stop="${si}" data-k="endTime" value="${s.endTime||""}" placeholder="結束時間">
         </div>
+
+        <div class="formrow">
+          <select data-day="${di}" data-stop="${si}" data-k="timeMode" class="stop-type-select">
+            <option value="exact" ${s.timeMode==="exact"?"selected":""}>準時</option>
+            <option value="around" ${s.timeMode==="around"?"selected":""}>左右／約</option>
+            <option value="range" ${s.timeMode==="range"?"selected":""}>時間區間</option>
+            <option value="after" ${s.timeMode==="after"?"selected":""}>之後</option>
+          </select>
+          <select data-day="${di}" data-stop="${si}" data-k="priority" class="stop-type-select">
+            <option value="key" ${s.priority==="key"?"selected":""}>🔴 關鍵行程</option>
+            <option value="normal" ${s.priority==="normal"?"selected":""}>🔵 一般行程</option>
+            <option value="flex" ${s.priority==="flex"?"selected":""}>🟡 彈性／可略過</option>
+          </select>
+        </div>
+
+        <input data-day="${di}" data-stop="${si}" data-k="name" value="${escapeHtmlAttr(s.name||"")}" placeholder="地點名稱">
         <input data-day="${di}" data-stop="${si}" data-k="address" value="${escapeHtmlAttr(s.address||"")}" placeholder="地址">
-        <textarea data-day="${di}" data-stop="${si}" data-k="note" placeholder="備註">${s.note||""}</textarea>`;
+        <textarea data-day="${di}" data-stop="${si}" data-k="note" placeholder="備註">${s.note||""}</textarea>
+        ${s.priority==="flex"?'<div class="flex-note">此行程已標記為彈性行程，時間不足時可優先略過。</div>':""}
+      `;
+
+      const handle=sd.querySelector(".drag-handle");
+      if(handle){
+        handle.draggable=true;
+        handle.addEventListener("dragstart",e=>{
+          sd.classList.add("dragging");
+          e.dataTransfer.effectAllowed="move";
+          e.dataTransfer.setData(
+            "application/x-willy-trip-stop",
+            JSON.stringify({dayIndex:di,stopIndex:si})
+          );
+        });
+        handle.addEventListener("dragend",()=>{
+          sd.classList.remove("dragging");
+        });
+
+        // Prevent text-selection gestures elsewhere in the card from turning into sorting.
+        handle.addEventListener("mousedown",e=>e.stopPropagation());
+        handle.addEventListener("touchstart",e=>e.stopPropagation(),{passive:true});
+      }
+
       stopEl.appendChild(sd);
     });
+
+    const lastInsert=document.createElement("div");
+    lastInsert.className="insert-between";
+    lastInsert.innerHTML=`<button onclick="insertStopAt(${di},${(day.stops||[]).length})">＋ 加在最後</button>`;
+    stopEl.appendChild(lastInsert);
   });
 }
 function toggleLodgingFields(di,enabled){
@@ -2787,6 +3403,10 @@ function addTripDay(){
     title:`第 ${trip.days.length+1} 天`,
     transport:"",
     startPoint:"",
+    meetingPoint:"",
+    meetingAddress:"",
+    meetingTime:"",
+    departureTime:"",
     endPoint:"",
     note:"",
     lodging:{enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
@@ -2803,8 +3423,48 @@ function deleteTripDay(di){
   trip.endDate=trip.days[trip.days.length-1]?.date || trip.startDate;
   renderEdit();
 }
+
+function newBlankStop(){
+  return {
+    time:"",
+    endTime:"",
+    timeMode:"exact",
+    name:"",
+    address:"",
+    note:"",
+    stay:0,
+    priority:"normal"
+  };
+}
+
+function insertStopAt(di,index){
+  if(!trip.days[di]) return;
+  trip.days[di].stops.splice(index,0,newBlankStop());
+  renderEdit();
+  setTimeout(()=>{
+    const el=document.querySelector(`[data-day="${di}"][data-stop="${index}"][data-k="name"]`);
+    el?.focus();
+    el?.scrollIntoView({behavior:"smooth",block:"center"});
+  },50);
+}
+
+function duplicateStop(di,si){
+  const source=trip.days?.[di]?.stops?.[si];
+  if(!source) return;
+  trip.days[di].stops.splice(si+1,0,structuredClone(source));
+  renderEdit();
+}
+
+function moveStopWithinDay(di,fromIndex,toIndex){
+  const arr=trip.days?.[di]?.stops;
+  if(!arr || fromIndex===toIndex) return;
+  const [item]=arr.splice(fromIndex,1);
+  arr.splice(toIndex,0,item);
+  renderEdit();
+}
+
 function addStopToDay(di){
-  trip.days[di].stops.push({time:"",name:"",address:"",note:"",stay:0});
+  trip.days[di].stops.push(newBlankStop());
   renderEdit();
 }
 function deleteStop(di,si){
@@ -2950,11 +3610,16 @@ function showAboutWillyTrip(){
   if(!target) return;
   target.innerHTML=`<div class="card">
     <div class="section-title">ℹ️ 關於 Willy Trip</div>
-    <div class="note">Willy Trip v1.8.1 Stable<br>隨身出遊助手｜規劃負責管理、旅程負責檢視、行事曆負責跨旅程瀏覽。</div>
+    <div class="note">Willy Trip v1.9.6<br>隨身出遊助手｜規劃負責管理、旅程負責檢視、行事曆負責跨旅程瀏覽。</div>
   </div>`;
 }
 
 function switchView(btn,id){
+  const validViews=["homeView","journeyView","nearbyView","plannerView","moreView"];
+  if(!validViews.includes(id) || !document.getElementById(id)){
+    console.warn("Willy Trip: invalid view target",id);
+    return;
+  }
   ["homeView","journeyView","nearbyView","plannerView","moreView"].forEach(v=>{
     const el=document.getElementById(v);
     if(el) el.classList.add("hidden");
@@ -3006,14 +3671,123 @@ function updateClock(){
   const sunset=mins(trip.sunset), left=sunset-cur;
   sun.textContent=left>=0?`距離日落還有 ${Math.floor(left/60)} 小時 ${left%60} 分鐘`:"今日已日落";
 }
-function shareTrip(){
-  let text=`${trip.title}\n${formatTripDateRange()}\n`;
-  trip.days.forEach((day,di)=>{
-    text+=`\nDay ${di+1}｜${day.date}｜${day.title||""}\n`;
-    (day.stops||[]).forEach(s=>{ text+=`${s.time||"--:--"} ${s.name||"未命名地點"}\n`; });
+
+function buildTripShareText(record=null){
+  const rec=record || getHomeTripRecord() || getActiveTripRecord();
+  const t=rec?.trip || trip;
+  if(!t) return "Willy Trip";
+
+  let text=`🧭 ${t.title||"未命名旅程"}\n`;
+  if(t.startDate){
+    if(t.startDate===t.endDate) text+=`📅 ${t.startDate.replaceAll("-","/")}\n`;
+    else text+=`📅 ${t.startDate.replaceAll("-","/")} ～ ${t.endDate.replaceAll("-","/")}\n`;
+  }
+  if(t.transport) text+=`🚗 ${t.transport}\n`;
+
+  (t.days||[]).forEach((day,di)=>{
+    if((t.days||[]).length>1){
+      text+=`\nDay ${di+1}｜${day.title||""}\n`;
+    }else{
+      text+="\n";
+    }
+
+    (day.stops||[]).forEach(s=>{
+      const icon=s.priority==="key"?"🔴 ":s.priority==="flex"?"🟡 ":"";
+      let time=s.time||"--:--";
+      if(s.endTime) time+=`～${s.endTime}`;
+      else if(s.timeMode==="after") time+=" 後";
+      else if(s.timeMode==="around") time="約 "+time;
+      text+=`${icon}${time}｜${s.name||"未命名地點"}\n`;
+      if(s.address) text+=`📍 ${s.address}\n`;
+      if(s.note) text+=`${s.note}\n`;
+    });
+
+    if(day.lodging?.enabled){
+      const l=day.lodging;
+      text+=`🏨 ${l.name||"住宿"}${l.checkIn?`｜入住 ${l.checkIn}`:""}\n`;
+      if(l.address) text+=`📍 ${l.address}\n`;
+    }
   });
-  if(navigator.share) navigator.share({title:trip.title,text});
-  else navigator.clipboard.writeText(text).then(()=>alert("行程已複製"));
+
+  return text.trim();
+}
+
+function openShareCenter(){
+  const modal=document.getElementById("shareModal");
+  const preview=document.getElementById("sharePreview");
+  if(preview) preview.textContent=buildTripShareText();
+  modal?.classList.remove("hidden");
+}
+
+function closeShareCenter(e){
+  if(e && e.target!==document.getElementById("shareModal")) return;
+  document.getElementById("shareModal")?.classList.add("hidden");
+}
+
+async function shareTripText(){
+  const text=buildTripShareText();
+  try{
+    if(navigator.share){
+      await navigator.share({title:(getHomeTripRecord()?.trip?.title||trip.title||"Willy Trip"),text});
+    }else{
+      await navigator.clipboard.writeText(text);
+      alert("此裝置不支援系統分享，已改為複製行程文字。");
+    }
+  }catch(e){
+    if(e?.name!=="AbortError") console.error(e);
+  }
+}
+
+async function copyTripText(){
+  const text=buildTripShareText();
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("行程文字已複製");
+  }catch(e){
+    alert("瀏覽器無法存取剪貼簿");
+  }
+}
+
+function exportCurrentTripFile(){
+  const rec=getHomeTripRecord() || getActiveTripRecord();
+  const payload={
+    schema:"willy-trip-single-trip",
+    version:"1.0",
+    exportedAt:new Date().toISOString(),
+    record:rec || {trip,state}
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const safe=(rec?.trip?.title||trip.title||"Willy_Trip").replace(/[\\/:*?"<>|]/g,"_");
+  a.href=url;
+  a.download=`${safe}_WillyTrip.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function shareWebsite(){
+  const url=(location.protocol==="http:"||location.protocol==="https:")?location.href:"https://wsoft0628.github.io/willy-trip/";
+  try{
+    if(navigator.share){
+      await navigator.share({
+        title:"Willy Trip",
+        text:"Willy Trip 隨身出遊助手",
+        url
+      });
+    }else{
+      await navigator.clipboard.writeText(url);
+      alert("網站網址已複製");
+    }
+  }catch(e){
+    if(e?.name!=="AbortError") console.error(e);
+  }
+}
+
+function shareTrip(){
+  openShareCenter();
 }
 
 function updateLiveClock(){
