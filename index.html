@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Willy Trip v1.0.1</title>
+<title>Willy Trip v1.8.1 Stable</title>
 <style>
 :root{
   --bg:#f5f6f8; --card:#fff; --text:#1b1d22; --muted:#6c7280; --line:#e6e8ec;
@@ -306,7 +306,230 @@ textarea{min-height:80px}
  .weather-sheet{border-radius:22px}
 }
 
+
+/* v1.0.2 bottom navigation fix */
+.bottom{
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+}
+.bottom-inner{
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:4px;
+}
+.navbtn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-width:0;
+  padding:8px 2px;
+  font-size:11px;
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:clip;
+}
+.navbtn .tab-icon{
+  display:block;
+  font-size:20px;
+  line-height:1;
+}
+.navbtn .tab-label{
+  display:block;
+  white-space:nowrap;
+  word-break:keep-all;
+}
+.navbtn.active{
+  font-weight:800;
+}
+@media(max-width:520px){.navbtn{font-size:10px}}
+@media(max-width:380px){
+  .navbtn{font-size:9px;padding:7px 1px}
+  .navbtn .tab-icon{font-size:19px}
+}
+
+
+/* v1.1.1 contextual home rebuild */
+.nearby-home-note{margin:-4px 0 10px}
+.home-context-hidden{display:none!important}
+.trip-state-inline{margin:8px 0 2px;font-size:12px;font-weight:750;color:#667085}
+
+
+/* v1.2.0 built-in calendar */
+.calendar-card{padding:14px}
+.calendar-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.calendar-title{font-size:20px;font-weight:900}
+.calendar-actions{display:flex;gap:6px}
+.calendar-actions button{border:0;background:#eef2f7;border-radius:10px;padding:8px 10px;cursor:pointer}
+.calendar-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.calendar-week div{text-align:center;font-size:11px;color:var(--muted);padding:5px 0}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.calendar-day{min-height:72px;border:1px solid #edf0f4;background:#fff;border-radius:12px;padding:7px;cursor:pointer;position:relative}
+.calendar-day:hover{background:#f8faff}
+.calendar-day.muted{opacity:.35}
+.calendar-day.today{outline:2px solid var(--accent);outline-offset:-2px}
+.calendar-day.trip-day{background:#f3f7ff;border-color:#dce7fb}
+.calendar-day.selected{background:#eaf1ff;border-color:#a9c5fb}
+.calendar-num{font-weight:800;font-size:12px}
+.calendar-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:5px}
+.calendar-trip-label{font-size:10px;color:#245fc6;margin-top:5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.calendar-detail{margin-top:12px}
+.calendar-detail-title{font-size:17px;font-weight:900;margin-bottom:8px}
+.calendar-event{border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;background:#fff}
+.calendar-event-time{font-weight:850;font-size:12px;color:#245fc6}
+.calendar-event-name{font-weight:800;margin-top:2px}
+.calendar-event-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.calendar-empty{padding:14px;background:#f7f9fc;border-radius:12px;color:var(--muted);font-size:13px}
+@media(max-width:520px){
+  .calendar-card{padding:10px}
+  .calendar-day{min-height:62px;padding:5px}
+  .calendar-num{font-size:11px}
+  .calendar-trip-label{font-size:9px}
+}
+
+
+/* v1.2.2 contextual top info */
+.topinfo-hidden{display:none!important}
+.livebar.compact{
+  grid-template-columns:1fr;
+  background:#fff;
+  border-radius:14px;
+  margin:8px 0 10px;
+}
+.livebar.compact .livepanel:first-child{display:none}
+.livebar.compact .livepanel{
+  border:0!important;
+  padding:10px 12px;
+}
+.livebar.compact .weather-location,
+.livebar.compact .weather-details,
+.livebar.compact .weather-updated,
+.livebar.compact .weather-today-summary,
+.livebar.compact .home-weather-more{
+  display:none!important;
+}
+.livebar.compact .weather-compact{
+  justify-content:flex-start;
+  gap:10px;
+}
+.livebar.compact .weather-temp{font-size:20px}
+.livebar.compact .weather-icon{font-size:22px}
+.livebar.compact .weather-desc{font-size:12px}
+.calendar-event.clickable{cursor:pointer}
+.calendar-event.clickable:hover{background:#f4f7fd}
+.calendar-linkhint{font-size:11px;color:#245fc6;margin-top:6px;font-weight:750}
+.related-highlight{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:12px;
+  animation:willyPulse 1.4s ease 2;
+}
+@keyframes willyPulse{
+  0%,100%{box-shadow:0 0 0 rgba(47,111,237,0)}
+  50%{box-shadow:0 0 0 6px rgba(47,111,237,.12)}
+}
+
+
+/* v1.3.0 history library */
+.history-tabs{display:flex;gap:8px;margin-bottom:12px}
+.history-tabs button{border:0;background:#eef2f7;border-radius:999px;padding:8px 12px;font-weight:750;cursor:pointer}
+.history-tabs button.active{background:var(--accent);color:#fff}
+.history-card{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#fff}
+.history-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.history-title{font-weight:900;font-size:16px}
+.history-meta{font-size:12px;color:var(--muted);line-height:1.55;margin-top:4px}
+.history-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.history-actions button{border:0;background:#eef3ff;color:#245fc6;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:750;cursor:pointer}
+.history-actions button.danger-mini{background:#fdecec;color:var(--danger)}
+.history-empty{padding:18px;background:#f7f9fc;border-radius:14px;color:var(--muted);font-size:13px}
+.history-doc-upload{border:1px dashed #cfd7e5;border-radius:14px;padding:14px;background:#fafcff;margin-bottom:12px}
+.history-doc-row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.history-doc-name{font-weight:800;word-break:break-all}
+.history-badge{display:inline-block;background:#f0f3f8;border-radius:999px;padding:5px 8px;font-size:11px;color:#566173;margin-right:5px}
+.history-note{font-size:12px;color:var(--muted);line-height:1.6}
+
+
+/* v1.4.0 navigation reorganization */
+.subnav{
+  display:flex;gap:7px;overflow-x:auto;padding:2px 0 12px;
+  scrollbar-width:none;
+}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{
+  flex:0 0 auto;border:0;background:#eef2f7;color:#566173;
+  border-radius:999px;padding:9px 13px;font-size:12px;font-weight:800;cursor:pointer;
+}
+.subnav button.active{background:var(--accent);color:#fff}
+.more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.more-item{
+  border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;
+  text-align:left;cursor:pointer;
+}
+.more-item .ico{font-size:23px;display:block;margin-bottom:7px}
+.more-item b{display:block;font-size:14px}
+.more-item span{display:block;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.45}
+.planner-head{margin-bottom:10px}
+@media(max-width:420px){
+  .more-grid{grid-template-columns:1fr 1fr}
+}
+
+
+/* v1.5.0 multi-trip management */
+.trip-manager-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.trip-manager-actions{display:flex;gap:7px;flex-wrap:wrap}
+.trip-manager-section{margin:16px 0}
+.trip-manager-section-title{font-weight:900;font-size:15px;margin-bottom:8px}
+.trip-list-card{border:1px solid var(--line);background:#fff;border-radius:15px;padding:13px;margin:9px 0}
+.trip-list-card.active-trip{border-color:#9fc0fb;background:#f6f9ff}
+.trip-list-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.trip-list-title{font-size:16px;font-weight:900}
+.trip-list-meta{font-size:12px;color:var(--muted);line-height:1.6;margin-top:4px}
+.trip-list-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.trip-list-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.trip-list-actions button{border:0;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:750;cursor:pointer;background:#eef3ff;color:#245fc6}
+.trip-list-actions button.secondary-mini{background:#eef2f7;color:#4f5968}
+.trip-list-actions button.danger-mini{background:#fdecec;color:var(--danger)}
+.trip-manager-empty{padding:14px;background:#f7f9fc;border-radius:13px;color:var(--muted);font-size:13px}
+.planner-editor-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.planner-editor-toolbar button{border:0;background:#eef2f7;border-radius:10px;padding:9px 11px;font-weight:750;cursor:pointer}
+.new-trip-form{border:1px solid var(--line);border-radius:15px;padding:13px;background:#fbfcfe;margin-bottom:12px}
+
+
+/* v1.6.0 legacy-trip import */
+.import-preview{
+  border:1px solid #b9cdf7;background:#f6f9ff;border-radius:16px;
+  padding:14px;margin:12px 0;
+}
+.import-preview h3{margin:0 0 8px;font-size:17px}
+.import-summary{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+.import-day{border-top:1px solid #e2e8f3;padding:8px 0;font-size:12px;line-height:1.55}
+.import-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.import-error{background:#fff3f3;border:1px solid #f0c7c7;border-radius:12px;padding:12px;color:#a33;font-size:13px}
+.location-consent{
+  border:0;background:#eef3ff;color:#245fc6;border-radius:999px;
+  padding:7px 10px;font-size:11px;font-weight:750;cursor:pointer;
+}
+
+
+/* v1.6.1 calendar & history viewing */
+.readonly-trip-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:14px;margin:12px 0}
+.readonly-trip-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.readonly-trip-title{font-size:20px;font-weight:900}
+.readonly-day{border-top:1px solid var(--line);padding:12px 0}
+.readonly-stop{padding:7px 0 7px 12px;border-left:3px solid #dbe7fb;margin:7px 0}
+.readonly-stop b{display:block}
+.readonly-meta{font-size:12px;color:var(--muted);line-height:1.55}
+.calendar-trip-stack{display:flex;flex-direction:column;gap:3px;margin-top:4px}
+.calendar-trip-mini{font-size:9px;color:#245fc6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendar-detail-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.calendar-detail-actions button{border:0;background:#eef3ff;color:#245fc6;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:750;cursor:pointer}
+@media(max-width:520px){
+  .calendar-actions{flex-wrap:wrap;justify-content:flex-end}
+  #calendarMonthPicker{width:118px!important}
+}
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -319,7 +542,7 @@ textarea{min-height:80px}
   </div>
 
 
-  <div class="livebar">
+  <div class="livebar" id="globalTopInfo">
     <div class="livepanel">
       <div class="sub">現在</div>
       <div class="live-time" id="liveClock">--:--:--</div>
@@ -328,7 +551,7 @@ textarea{min-height:80px}
     <div class="livepanel weather-clickable" onclick="openWeatherDetails()">
       <div class="weather-location" style="display:flex;justify-content:space-between;align-items:center;gap:6px">
         <span id="weatherLocation">📍 目前位置定位中…</span>
-        <button class="iconbtn" style="padding:4px 7px;font-size:10px" onclick="event.stopPropagation();refreshLocationWeather()">重新定位</button>
+        <button id="locationActionBtn" class="iconbtn" style="padding:4px 7px;font-size:10px" onclick="event.stopPropagation();refreshLocationWeather()">啟用定位</button>
       </div>
       <div class="weather-compact">
         <div>
@@ -352,7 +575,7 @@ textarea{min-height:80px}
   </div>
 
   <section id="homeView">
-    <div class="trip-hero">
+    <div class="trip-hero" id="tripHeroCard">
       <div class="sub" id="heroStateLabel">下一趟旅程</div>
       <div class="trip-hero-title" id="tripTitle"></div>
       <div class="trip-hero-date" id="tripDate"></div>
@@ -373,14 +596,21 @@ textarea{min-height:80px}
         <span class="hero-chip">🌅 日落 18:04</span>
       </div>
 
+      <div class="trip-state-inline" id="tripStateInline">尚未開始</div>
+
       <div class="hero-actions">
         <button class="hero-btn main" onclick="openTimeline()">查看完整行程</button>
         <button class="hero-btn alt" onclick="navigateMeeting()">導航集合點</button>
       </div>
     </div>
 
-    <div class="card next-preview-card">
-      <div class="sub">下一站預覽</div>
+    <div class="card" id="keyReminderCard">
+      <div class="section-title">⭐ 關鍵提醒</div>
+      <div class="note">最重要節點：<b>16:40 左右離開 Bliss捲捲</b>；盡量不要晚於 17:00 才出發前往新月沙灣。</div>
+    </div>
+
+    <div class="card next-preview-card" id="nextPreviewCard">
+      <div class="sub">第一站預覽</div>
       <div class="next-preview">
         <div>
           <div class="next-preview-name" id="nextPreviewName">內灣老街</div>
@@ -390,19 +620,7 @@ textarea{min-height:80px}
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">附近快速找</div>
-      <div class="home-nearby">
-        <button onclick="openNearbySearch('restaurant')">🍽️ 吃東西</button>
-        <button onclick="openNearbySearch('cafe')">☕ 咖啡</button>
-        <button onclick="openNearbySearch('motorcycle_parking')">🛵 機車停車</button>
-        <button onclick="openNearbySearch('gas')">⛽ 加油</button>
-        <button onclick="openNearbySearch('convenience')">🏪 超商</button>
-        <button onclick="openNearbySearch('toilet')">🚻 廁所</button>
-      </div>
-    </div>
-
-    <div class="card">
+    <div class="card" id="currentTripCard">
       <div class="section-title">現在行程</div>
       <div class="sub" id="nowTime"></div>
       <div class="now-title" id="currentName">尚未開始</div>
@@ -416,27 +634,85 @@ textarea{min-height:80px}
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">行程狀態</div>
-      <div class="status" id="statusText">尚未開始</div>
-      <div class="meta" id="sunsetText"></div>
-      <div class="progress"><div id="progressBar"></div></div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">⭐ 關鍵提醒</div>
-      <div class="note">最重要節點：<b>16:40 左右離開 Bliss捲捲</b>；盡量不要晚於 17:00 才出發前往新月沙灣。</div>
+    <div class="card" id="nearbyHomeCard">
+      <div class="section-title">🧭 附近探索</div>
+      <div class="note nearby-home-note">現在附近需要什麼？</div>
+      <div class="home-nearby">
+        <button onclick="openNearbySearch('restaurant')">🍜 吃東西</button>
+        <button onclick="openNearbySearch('cafe')">☕ 咖啡</button>
+        <button onclick="openNearbySearch('motorcycle_parking')">🛵 停車</button>
+        <button onclick="openNearbySearch('gas')">⛽ 加油</button>
+        <button onclick="openNearbySearch('convenience')">🏪 超商</button>
+        <button onclick="openNearbySearch('toilet')">🚻 廁所</button>
+      </div>
     </div>
   </section>
 
-  <section id="timelineView" class="hidden">
+
+  
+  
+  <section id="journeyView" class="hidden">
+    <div class="subnav">
+      <button id="journeyTabTimeline" class="active" onclick="showJourneySection('timeline')">🗺️ 完整行程</button>
+      <button id="journeyTabCalendar" onclick="showJourneySection('calendar')">📅 行事曆</button>
+    </div>
+
+    <div id="journeyTimelinePanel">
     <div class="card">
       <div class="section-title">完整行程</div>
       <div class="timeline" id="timeline"></div>
     </div>
+  </div>
+    <div id="journeyCalendarPanel" class="hidden">
+    <div class="card calendar-card">
+      <div class="calendar-head">
+        <div>
+          <div class="sub">旅程行事曆</div>
+          <div class="calendar-title" id="calendarMonthTitle">----</div>
+        </div>
+        <div class="calendar-actions">
+          <button onclick="changeCalendarMonth(-1)">‹</button>
+          <input id="calendarMonthPicker" type="month" onchange="jumpCalendarMonth(this.value)" style="width:128px;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:#fff">
+          <button onclick="goCalendarToday()">今天</button>
+          <button onclick="jumpToNearestTrip()">旅程日期</button>
+          <button onclick="changeCalendarMonth(1)">›</button>
+        </div>
+      </div>
+
+      <div class="calendar-week">
+        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <div class="card calendar-detail">
+      <div class="calendar-detail-title" id="calendarDetailTitle">選擇日期</div>
+      <div id="calendarDetailBody" class="calendar-empty">點選月曆日期查看當日行程。</div>
+    </div>
+  </div>
   </section>
 
-  <section id="nearbyView" class="hidden">
+
+  <section id="plannerView" class="hidden">
+    <div class="card">
+      <div class="trip-manager-head">
+        <div>
+          <div class="section-title">✏️ 旅程規劃</div>
+          <div class="note">建立與管理多趟旅行；可直接建立，也可從 DOCX 行程文件匯入。系統會依日期自動分類為未來、進行中或歷史旅程。</div>
+        </div>
+        <div class="trip-manager-actions">
+          <button class="btn secondary" style="padding:10px 12px" onclick="document.getElementById('tripImportFile').click()">📄 匯入行程文件</button>
+          <button class="btn primary" style="padding:10px 12px" onclick="showNewTripForm()">＋ 新旅程</button>
+          <input id="tripImportFile" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="importTripDocument(event)">
+          <input id="tripAttachmentFile" type="file" accept=".docx,.pdf,.json,image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,application/json" style="display:none" onchange="handleTripAttachmentUpload(event)">
+        </div>
+      </div>
+      <div id="tripImportPreview"></div><div id="plannerManager"></div>
+    </div>
+    <div id="plannerEditorHost"></div>
+  </section>
+
+<section id="nearbyView" class="hidden">
     <div class="card">
       <div class="section-title">📍 附近探索</div>
       <div class="note">以手機目前 GPS 位置為中心，快速尋找旅行途中常用設施。</div>
@@ -486,7 +762,7 @@ textarea{min-height:80px}
     </div>
   </section>
 
-  <section id="editView" class="hidden">
+  <section id="editView" class="hidden internal-view">
     <div class="card">
       <div class="section-title">旅程設定</div>
 
@@ -526,7 +802,24 @@ textarea{min-height:80px}
     </div>
   </section>
 
-  <section id="dataView" class="hidden">
+  
+  <section id="moreView" class="hidden">
+    <div class="card">
+      <div class="section-title">☰ 更多</div>
+      <div class="note">系統資料、備份還原與版本資訊集中在這裡。</div>
+      <div class="more-grid" style="margin-top:12px">
+        <button class="more-item" onclick="openMoreData()">
+          <span class="ico">💾</span><b>資料中心</b><span>完整備份、還原與本機資料管理</span>
+        </button>
+        <button class="more-item" onclick="showAboutWillyTrip()">
+          <span class="ico">ℹ️</span><b>關於</b><span>Willy Trip 版本與系統資訊</span>
+        </button>
+      </div>
+    </div>
+    <div id="moreContent"></div>
+  </section>
+
+<section id="dataView" class="hidden internal-view">
     <div class="card">
       <div class="section-title">資料中心</div>
       <div class="note">備份內容包含：旅程資料、目前進度、抵達／略過狀態與系統保存資料。</div>
@@ -607,12 +900,12 @@ textarea{min-height:80px}
 </div>
 
 <div class="bottom">
-  <div class="bottom-inner" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
-    <button class="navbtn active" data-view="homeView" onclick="switchView(this,'homeView')">🏠 今日</button>
-    <button class="navbtn" data-view="timelineView" onclick="switchView(this,'timelineView')">🗓️ 行程</button>
-    <button class="navbtn" data-view="nearbyView" onclick="switchView(this,'nearbyView')">📍 附近</button>
-    <button class="navbtn" data-view="editView" onclick="switchView(this,'editView')">⚙️ 編輯</button>
-    <button class="navbtn" data-view="dataView" onclick="switchView(this,'dataView')">💾 資料</button>
+  <div class="bottom-inner" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+    <button class="navbtn active" data-view="homeView" onclick="switchView(this,'homeView')"><span class="tab-icon">🏠</span><span class="tab-label">今日</span></button>
+    <button class="navbtn" data-view="journeyView" onclick="switchView(this,'journeyView')"><span class="tab-icon">🗺️</span><span class="tab-label">旅程</span></button>
+    <button class="navbtn" data-view="nearbyView" onclick="switchView(this,'nearbyView')"><span class="tab-icon">📍</span><span class="tab-label">附近</span></button>
+    <button class="navbtn" data-view="plannerView" onclick="switchView(this,'plannerView')"><span class="tab-icon">✏️</span><span class="tab-label">規劃</span></button>
+    <button class="navbtn" data-view="moreView" onclick="switchView(this,'moreView')"><span class="tab-icon">☰</span><span class="tab-label">更多</span></button>
   </div>
 </div>
 
@@ -642,9 +935,64 @@ const DEFAULT_TRIP = {
     }
   ]
 };
-let trip = JSON.parse(localStorage.getItem("willyTripData")||"null") || structuredClone(DEFAULT_TRIP);
 
-let state = JSON.parse(localStorage.getItem("willyTripState")||"null") || {current:0,arrived:false,skipped:[]};
+const TRIPS_KEY="willyTripTrips";
+const ACTIVE_TRIP_KEY="willyTripActiveTripId";
+
+function makeTripRecord(tripData,stateData,id=null){
+  return {
+    id:id || ("trip_"+Date.now()+"_"+Math.random().toString(36).slice(2,7)),
+    trip:structuredClone(tripData),
+    state:structuredClone(stateData || {current:0,arrived:false,skipped:[]}),
+    createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString(),
+    archived:false
+  };
+}
+
+function loadTripCollection(){
+  try{
+    const arr=JSON.parse(localStorage.getItem(TRIPS_KEY)||"null");
+    if(Array.isArray(arr) && arr.length) return arr;
+  }catch(e){}
+  const legacyTrip=JSON.parse(localStorage.getItem("willyTripData")||"null") || structuredClone(DEFAULT_TRIP);
+  const legacyState=JSON.parse(localStorage.getItem("willyTripState")||"null") || {current:0,arrived:false,skipped:[]};
+  const rec=makeTripRecord(legacyTrip,legacyState,"trip_initial");
+  localStorage.setItem(TRIPS_KEY,JSON.stringify([rec]));
+  localStorage.setItem(ACTIVE_TRIP_KEY,rec.id);
+  return [rec];
+}
+
+let trips = loadTripCollection();
+let activeTripId = localStorage.getItem(ACTIVE_TRIP_KEY) || trips[0]?.id;
+if(!trips.some(x=>x.id===activeTripId)) activeTripId=trips[0]?.id;
+
+function getActiveTripRecord(){
+  return trips.find(x=>x.id===activeTripId) || trips[0];
+}
+
+let activeRecord = getActiveTripRecord();
+let trip = structuredClone(activeRecord?.trip || DEFAULT_TRIP);
+let state = structuredClone(activeRecord?.state || {current:0,arrived:false,skipped:[]});
+
+function persistTripCollection(){
+  localStorage.setItem(TRIPS_KEY,JSON.stringify(trips));
+  localStorage.setItem(ACTIVE_TRIP_KEY,activeTripId||"");
+  // compatibility mirror for older backup/code paths
+  localStorage.setItem("willyTripData",JSON.stringify(trip));
+  localStorage.setItem("willyTripState",JSON.stringify(state));
+}
+
+function syncActiveRecord(){
+  const idx=trips.findIndex(x=>x.id===activeTripId);
+  if(idx>=0){
+    trips[idx].trip=structuredClone(trip);
+    trips[idx].state=structuredClone(state);
+    trips[idx].updatedAt=new Date().toISOString();
+  }
+  persistTripCollection();
+}
+
 
 function migrateTripSchema(){
   // Backward compatibility for v0.6 and earlier one-day data.
@@ -712,6 +1060,7 @@ function migrateTripSchema(){
   });
 }
 migrateTripSchema();
+syncActiveRecord();
 
 function allStops(){
   const flat=[];
@@ -747,8 +1096,8 @@ function getCurrentTripDayIndex(){
 }
 
 
-function saveState(){ localStorage.setItem("willyTripState",JSON.stringify(state)); }
-function saveTrip(){ localStorage.setItem("willyTripData",JSON.stringify(trip)); }
+function saveState(){ syncActiveRecord(); }
+function saveTrip(){ syncActiveRecord(); }
 
 function mins(t){const [h,m]=t.split(":").map(Number);return h*60+m}
 function fmtDiff(n){
@@ -817,11 +1166,14 @@ function navigateNextPreview(){
 function buildBackupObject(){
   return {
     schema:"willy-trip-backup",
-    version:"4.0.1",
+    version:"8.1",
     exportedAt:new Date().toISOString(),
     app:"Willy Trip",
     trip:trip,
-    state:state
+    state:state,
+    historyTrips:getHistoryTrips(),
+    trips:trips,
+    activeTripId:activeTripId
   };
 }
 
@@ -856,6 +1208,15 @@ async function restoreBackupFile(event){
 
     trip=data.trip;
     state=data.state;
+    if(Array.isArray(data.historyTrips)) saveHistoryTrips(data.historyTrips);
+    if(Array.isArray(data.trips) && data.trips.length){
+      trips=data.trips;
+      activeTripId=data.activeTripId && trips.some(x=>x.id===data.activeTripId) ? data.activeTripId : trips[0].id;
+      const rec=trips.find(x=>x.id===activeTripId)||trips[0];
+      trip=structuredClone(rec.trip);
+      state=structuredClone(rec.state||{current:0,arrived:false,skipped:[]});
+      persistTripCollection();
+    }
     saveTrip();
     saveState();
     localStorage.setItem("willyTripLastRestoreAt",new Date().toISOString());
@@ -1004,12 +1365,1207 @@ async function openNearbySearch(type){
   }
 }
 
+
+function updateHomeContext(){
+  const homeRecord=getHomeTripRecord();
+  const card=document.getElementById("currentTripCard");
+  const inline=document.getElementById("tripStateInline");
+  const previewLabel=document.querySelector("#nextPreviewCard .sub");
+
+  if(!homeRecord){
+    card?.classList.add("home-context-hidden");
+    if(inline) inline.textContent="目前沒有即將到來的旅程";
+    if(previewLabel) previewLabel.textContent="旅程";
+    return;
+  }
+
+  const now=new Date();
+  const depart=new Date(`${trip.startDate}T09:15:00+08:00`);
+  const end=new Date(`${trip.endDate}T23:59:59+08:00`);
+
+  if(now < depart){
+    card?.classList.add("home-context-hidden");
+    if(inline) inline.textContent="尚未開始";
+    if(previewLabel) previewLabel.textContent="第一站預覽";
+  }else if(now <= end && state.current < totalStops()){
+    card?.classList.remove("home-context-hidden");
+    if(inline) inline.textContent=`🟢 旅程進行中｜第 ${Math.min(state.current+1,totalStops())} / ${totalStops()} 站`;
+    if(previewLabel) previewLabel.textContent="下一站";
+  }else{
+    card?.classList.add("home-context-hidden");
+    if(inline) inline.textContent="✓ 本次旅程已完成";
+    if(previewLabel) previewLabel.textContent="旅程回顧";
+  }
+}
+
+
+let calendarCursor = new Date();
+calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth(), 1);
+let calendarSelectedDate = null;
+
+function pad2(n){ return String(n).padStart(2,"0"); }
+function isoDateLocal(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+
+function getTripEntriesByDate(dateStr){
+  const results=[];
+  (trips||[]).forEach(record=>{
+    (record.trip?.days||[]).forEach((day,di)=>{
+      if(day.date===dateStr){
+        results.push({record,day,dayIndex:di});
+      }
+    });
+  });
+  return results;
+}
+
+function renderCalendar(){
+  const grid=document.getElementById("calendarGrid");
+  const title=document.getElementById("calendarMonthTitle");
+  if(!grid || !title) return;
+
+  const y=calendarCursor.getFullYear();
+  const m=calendarCursor.getMonth();
+  title.textContent=`${y} 年 ${m+1} 月`;
+
+  const picker=document.getElementById("calendarMonthPicker");
+  if(picker) picker.value=`${y}-${pad2(m+1)}`;
+
+  grid.innerHTML="";
+  const first=new Date(y,m,1);
+  const start=new Date(y,m,1-first.getDay());
+  const todayStr=isoDateLocal(new Date());
+
+  for(let i=0;i<42;i++){
+    const d=new Date(start);
+    d.setDate(start.getDate()+i);
+    const iso=isoDateLocal(d);
+    const entries=getTripEntriesByDate(iso);
+
+    const cell=document.createElement("button");
+    cell.type="button";
+    cell.className="calendar-day";
+    if(d.getMonth()!==m) cell.classList.add("muted");
+    if(iso===todayStr) cell.classList.add("today");
+    if(entries.length) cell.classList.add("trip-day");
+    if(calendarSelectedDate===iso) cell.classList.add("selected");
+
+    let labels="";
+    if(entries.length){
+      labels=`<div class="calendar-dot"></div><div class="calendar-trip-stack">`+
+        entries.slice(0,3).map(({record})=>`<div class="calendar-trip-mini">${escapeHtmlAttr(record.trip?.title||"旅程")}</div>`).join("")+
+        (entries.length>3?`<div class="calendar-trip-mini">+${entries.length-3}</div>`:"")+
+        `</div>`;
+    }
+
+    cell.innerHTML=`<div class="calendar-num">${d.getDate()}</div>${labels}`;
+    cell.onclick=()=>{
+      calendarSelectedDate=iso;
+      renderCalendar();
+      renderCalendarDateDetail(iso);
+    };
+    grid.appendChild(cell);
+  }
+
+  if(calendarSelectedDate) renderCalendarDateDetail(calendarSelectedDate);
+}
+
+function renderCalendarDateDetail(dateStr){
+  const title=document.getElementById("calendarDetailTitle");
+  const body=document.getElementById("calendarDetailBody");
+  if(!title || !body) return;
+
+  const d=new Date(dateStr+"T00:00:00");
+  const days=["日","一","二","三","四","五","六"];
+  title.textContent=`${dateStr.replaceAll("-","/")}（${days[d.getDay()]}）`;
+
+  const entries=getTripEntriesByDate(dateStr);
+  if(!entries.length){
+    body.className="calendar-empty";
+    body.innerHTML="這一天目前沒有旅程安排。";
+    return;
+  }
+
+  body.className="";
+  let out="";
+
+  entries.forEach(({record,day,dayIndex})=>{
+    const t=record.trip||{};
+    const dayHeader=(t.days||[]).length>1?`Day ${dayIndex+1}｜${day.title||""}`:(day.title||t.title||"本日行程");
+
+    out+=`<div class="calendar-event">
+      <div class="calendar-event-name">🧳 ${escapeHtmlAttr(t.title||"旅程")}</div>
+      <div class="calendar-event-meta">${escapeHtmlAttr(dayHeader)}${day.transport?`<br>🚗 ${escapeHtmlAttr(day.transport)}`:""}</div>
+      <div class="calendar-detail-actions">
+        <button onclick="viewManagedTrip('${record.id}')">查看旅程</button>
+        
+      </div>
+    </div>`;
+
+    (day.stops||[]).forEach((s,si)=>{
+      out+=`<div class="calendar-event clickable" onclick="viewManagedTrip('${record.id}')">
+        <div class="calendar-event-time">${escapeHtmlAttr(s.time||"--:--")}</div>
+        <div class="calendar-event-name">${escapeHtmlAttr(s.name||"未命名地點")}</div>
+        <div class="calendar-event-meta">${s.note?escapeHtmlAttr(s.note)+"<br>":""}${s.address?`📍 ${escapeHtmlAttr(s.address)}`:""}</div>
+      </div>`;
+    });
+
+    if(day.lodging?.enabled){
+      const l=day.lodging;
+      out+=`<div class="calendar-event clickable" onclick="viewManagedTrip('${record.id}')">
+        <div class="calendar-event-time">${escapeHtmlAttr(l.checkIn||"住宿")}</div>
+        <div class="calendar-event-name">🏨 ${escapeHtmlAttr(l.name||"本晚住宿")}</div>
+        <div class="calendar-event-meta">${l.address?`📍 ${escapeHtmlAttr(l.address)}<br>`:""}${l.checkOut?`退房 ${escapeHtmlAttr(l.checkOut)}`:""}</div>
+      </div>`;
+    }
+  });
+
+  body.innerHTML=out;
+}
+
+function jumpCalendarMonth(value){
+  if(!value) return;
+  const [y,m]=value.split("-").map(Number);
+  calendarCursor=new Date(y,m-1,1);
+  calendarSelectedDate=null;
+  renderCalendar();
+  const title=document.getElementById("calendarDetailTitle");
+  const body=document.getElementById("calendarDetailBody");
+  if(title) title.textContent="選擇日期";
+  if(body){body.className="calendar-empty";body.textContent="點選月曆日期查看當日行程。";}
+}
+
+function jumpToNearestTrip(){
+  const dates=[];
+  (trips||[]).forEach(r=>(r.trip?.days||[]).forEach(d=>{if(d.date) dates.push(d.date)}));
+  if(!dates.length) return;
+  dates.sort();
+
+  const today=isoDateLocal(new Date());
+  let chosen=dates.find(x=>x>=today) || dates[dates.length-1];
+
+  // If there are historical and future trips, cycle through unique trip months.
+  const months=[...new Set(dates.map(x=>x.slice(0,7)))];
+  const current=`${calendarCursor.getFullYear()}-${pad2(calendarCursor.getMonth()+1)}`;
+  let idx=months.indexOf(current);
+  if(idx>=0) chosen=months[(idx+1)%months.length]+"-01";
+
+  const [y,m]=chosen.split("-").map(Number);
+  calendarCursor=new Date(y,m-1,1);
+  calendarSelectedDate=dates.find(x=>x.startsWith(`${y}-${pad2(m)}`)) || null;
+  renderCalendar();
+}
+
+function changeCalendarMonth(offset){
+  calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+offset,1);
+  calendarSelectedDate=null;
+  renderCalendar();
+  const body=document.getElementById("calendarDetailBody");
+  const title=document.getElementById("calendarDetailTitle");
+  if(title) title.textContent="選擇日期";
+  if(body){ body.className="calendar-empty"; body.textContent="點選月曆日期查看當日行程。"; }
+}
+
+function goCalendarToday(){
+  const now=new Date();
+  calendarCursor=new Date(now.getFullYear(),now.getMonth(),1);
+  calendarSelectedDate=isoDateLocal(now);
+  renderCalendar();
+}
+
+
+function openRelatedTripItem(dayIndex, stopIndex, type){
+  const btn=document.querySelector('[data-view="journeyView"]');
+  switchView(btn,"journeyView");
+  showJourneySection("timeline");
+
+  setTimeout(()=>{
+    let selector="";
+    if(type==="stop"){
+      selector=`#timeline [data-relation-type="stop"][data-day-index="${dayIndex}"][data-stop-index="${stopIndex}"]`;
+    }else if(type==="lodging"){
+      selector=`#timeline [data-relation-type="lodging"][data-day-index="${dayIndex}"]`;
+    }else{
+      selector=`#timeline [data-relation-type="day"][data-day-index="${dayIndex}"]`;
+    }
+
+    const target=document.querySelector(selector);
+    if(target){
+      document.querySelectorAll(".related-highlight").forEach(el=>el.classList.remove("related-highlight"));
+      target.classList.add("related-highlight");
+      target.scrollIntoView({behavior:"smooth",block:"center"});
+      setTimeout(()=>target.classList.remove("related-highlight"),3200);
+    }
+  },80);
+}
+
+
+const HISTORY_TRIPS_KEY="willyTripHistoryTrips";
+
+function getHistoryTrips(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_TRIPS_KEY)||"[]")||[]}
+  catch(e){return []}
+}
+function saveHistoryTrips(items){
+  localStorage.setItem(HISTORY_TRIPS_KEY,JSON.stringify(items));
+}
+
+function archiveCurrentTrip(){
+  const items=getHistoryTrips();
+  const snapshot={
+    id:"trip_"+Date.now(),
+    archivedAt:new Date().toISOString(),
+    title:trip.title,
+    startDate:trip.startDate,
+    endDate:trip.endDate,
+    transport:trip.transport||"",
+    trip:structuredClone(trip),
+    state:structuredClone(state)
+  };
+  items.unshift(snapshot);
+  saveHistoryTrips(items);
+  renderHistoryTrips();
+  alert("目前旅程已存入歷史旅程");
+}
+
+function renderHistoryTrips(){
+  const el=document.getElementById("historyTripsList");
+  if(!el) return;
+  const items=getHistoryTrips();
+  if(!items.length){
+    el.innerHTML='<div class="history-empty">目前尚無歷史旅程。</div>';
+    return;
+  }
+  el.innerHTML=items.map(item=>{
+    const days=item.trip?.days?.length||1;
+    const stops=(item.trip?.days||[]).reduce((n,d)=>n+(d.stops?.length||0),0);
+    const range=item.startDate===item.endDate?item.startDate:`${item.startDate} ～ ${item.endDate}`;
+    return `<div class="history-card">
+      <div class="history-card-head">
+        <div>
+          <div class="history-title">${escapeHtmlAttr(item.title||"未命名旅程")}</div>
+          <div class="history-meta">${escapeHtmlAttr(range||"")}<br>${days} 天｜${stops} 站｜${escapeHtmlAttr(item.transport||"未設定交通")}</div>
+        </div>
+        <span class="history-badge">歷史</span>
+      </div>
+      <div class="history-actions">
+        <button onclick="openHistoryTrip('${item.id}')">查看</button>
+        <button onclick="duplicateHistoryTrip('${item.id}')">複製成目前旅程</button>
+        <button onclick="restoreHistoryTrip('${item.id}')">恢復此旅程</button>
+        <button class="danger-mini" onclick="deleteHistoryTrip('${item.id}')">刪除</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function openHistoryTrip(id){
+  const item=getHistoryTrips().find(x=>x.id===id);
+  if(!item) return;
+  const originalTrip=trip, originalState=state;
+  trip=structuredClone(item.trip);
+  state=structuredClone(item.state||{current:0,arrived:false,skipped:[]});
+  renderTimeline();
+  const btn=document.querySelector('[data-view="journeyView"]');
+  switchView(btn,"journeyView");
+  showJourneySection("timeline");
+  // Restore in-memory current trip after timeline has rendered.
+  trip=originalTrip;
+  state=originalState;
+}
+
+function duplicateHistoryTrip(id){
+  const item=getHistoryTrips().find(x=>x.id===id);
+  if(!item) return;
+  if(!confirm("要將這趟歷史旅程複製成目前旅程嗎？目前未備份的旅程內容會被取代。")) return;
+  trip=structuredClone(item.trip);
+  trip.title=(trip.title||"旅程")+"（複製）";
+  state={current:0,arrived:false,skipped:[]};
+  saveTrip(); saveState(); render();
+  alert("已複製成目前旅程");
+}
+
+function restoreHistoryTrip(id){
+  const item=getHistoryTrips().find(x=>x.id===id);
+  if(!item) return;
+  if(!confirm("確定恢復這趟歷史旅程為目前旅程？")) return;
+  trip=structuredClone(item.trip);
+  state=structuredClone(item.state||{current:0,arrived:false,skipped:[]});
+  saveTrip(); saveState(); render();
+  alert("已恢復歷史旅程");
+}
+
+function deleteHistoryTrip(id){
+  if(!confirm("確定刪除此歷史旅程？")) return;
+  saveHistoryTrips(getHistoryTrips().filter(x=>x.id!==id));
+  renderHistoryTrips();
+}
+
+function showHistoryTab(tab){
+  document.getElementById("historyTripsPanel")?.classList.toggle("hidden",tab!=="trips");
+  document.getElementById("historyDocsPanel")?.classList.toggle("hidden",tab!=="docs");
+  document.getElementById("historyTabTrips")?.classList.toggle("active",tab==="trips");
+  document.getElementById("historyTabDocs")?.classList.toggle("active",tab==="docs");
+  if(tab==="docs") renderHistoryDocuments();
+}
+
+/* IndexedDB historical documents */
+const HISTORY_DB_NAME="WillyTripHistoryDB";
+const HISTORY_DB_VERSION=1;
+const HISTORY_DOC_STORE="documents";
+
+function openHistoryDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(HISTORY_DB_NAME,HISTORY_DB_VERSION);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(HISTORY_DOC_STORE)){
+        const store=db.createObjectStore(HISTORY_DOC_STORE,{keyPath:"id"});
+        store.createIndex("createdAt","createdAt");
+      }
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function importHistoryDocuments(event){
+  const files=[...(event.target.files||[])];
+  if(!files.length) return;
+  try{
+    const db=await openHistoryDb();
+    const tx=db.transaction(HISTORY_DOC_STORE,"readwrite");
+    const store=tx.objectStore(HISTORY_DOC_STORE);
+    for(const file of files){
+      store.put({
+        id:"doc_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
+        name:file.name,
+        type:file.type||"",
+        size:file.size,
+        createdAt:new Date().toISOString(),
+        blob:file
+      });
+    }
+    await new Promise((resolve,reject)=>{
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    event.target.value="";
+    renderHistoryDocuments();
+  }catch(e){
+    alert("文件保存失敗："+e.message);
+  }
+}
+
+async function getHistoryDocuments(){
+  const db=await openHistoryDb();
+  return await new Promise((resolve,reject)=>{
+    const tx=db.transaction(HISTORY_DOC_STORE,"readonly");
+    const req=tx.objectStore(HISTORY_DOC_STORE).getAll();
+    req.onsuccess=()=>resolve(req.result||[]);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+function formatFileSize(bytes){
+  if(bytes<1024) return bytes+" B";
+  if(bytes<1024*1024) return (bytes/1024).toFixed(1)+" KB";
+  return (bytes/1024/1024).toFixed(1)+" MB";
+}
+
+async function renderHistoryDocuments(){
+  const el=document.getElementById("historyDocsList");
+  if(!el) return;
+  try{
+    const docs=(await getHistoryDocuments()).sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+    if(!docs.length){
+      el.innerHTML='<div class="history-empty">目前尚無原始附件。</div>';
+      return;
+    }
+    el.innerHTML=docs.map(doc=>`<div class="history-card">
+      <div class="history-doc-row">
+        <div>
+          <div class="history-doc-name">📄 ${escapeHtmlAttr(doc.name)}</div>
+          <div class="history-meta">${formatFileSize(doc.size||0)}｜${new Date(doc.createdAt).toLocaleString("zh-TW",{hour12:false})}</div>
+        </div>
+      </div>
+      <div class="history-actions">
+        <button onclick="downloadHistoryDocument('${doc.id}')">下載</button>
+        <button class="danger-mini" onclick="deleteHistoryDocument('${doc.id}')">刪除</button>
+      </div>
+    </div>`).join("");
+  }catch(e){
+    el.innerHTML='<div class="history-empty">無法讀取原始附件。</div>';
+  }
+}
+
+async function downloadHistoryDocument(id){
+  const db=await openHistoryDb();
+  const doc=await new Promise((resolve,reject)=>{
+    const tx=db.transaction(HISTORY_DOC_STORE,"readonly");
+    const req=tx.objectStore(HISTORY_DOC_STORE).get(id);
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+  if(!doc) return;
+  const url=URL.createObjectURL(doc.blob);
+  const a=document.createElement("a");
+  a.href=url; a.download=doc.name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+async function deleteHistoryDocument(id){
+  if(!confirm("確定刪除此原始附件？")) return;
+  const db=await openHistoryDb();
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction(HISTORY_DOC_STORE,"readwrite");
+    tx.objectStore(HISTORY_DOC_STORE).delete(id);
+    tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+  });
+  renderHistoryDocuments();
+}
+
+
+let plannerMode="list";
+let plannerPreviousActiveTripId=null;
+
+
+function getTodayIso(){
+  return isoDateLocal(new Date());
+}
+
+function getHomeTripRecord(){
+  const today=getTodayIso();
+
+  // 1. A trip actually happening today always wins.
+  const current=trips
+    .filter(r=>{
+      const s=r.trip?.startDate||"";
+      const e=r.trip?.endDate||s;
+      return !r.archived && s && e && today>=s && today<=e;
+    })
+    .sort((a,b)=>(a.trip?.startDate||"").localeCompare(b.trip?.startDate||""));
+
+  if(current.length) return current[0];
+
+  // 2. Otherwise choose the nearest upcoming trip.
+  const future=trips
+    .filter(r=>{
+      const s=r.trip?.startDate||"";
+      return !r.archived && s && s>today;
+    })
+    .sort((a,b)=>(a.trip?.startDate||"").localeCompare(b.trip?.startDate||""));
+
+  if(future.length) return future[0];
+
+  // 3. Never auto-promote a historical trip to the home page.
+  return null;
+}
+
+function activateRecordForHome(record){
+  if(!record) return false;
+  activeTripId=record.id;
+  activeRecord=record;
+  trip=structuredClone(record.trip);
+  state=structuredClone(record.state||{current:0,arrived:false,skipped:[]});
+  migrateTripSchema();
+  persistTripCollection();
+  return true;
+}
+
+function ensureCorrectHomeTrip(){
+  const record=getHomeTripRecord();
+  if(record && record.id!==activeTripId){
+    activateRecordForHome(record);
+  }
+  return record;
+}
+
+function tripStatus(record){
+  const today=getTodayIso();
+  const s=record.trip?.startDate||"";
+  const e=record.trip?.endDate||s;
+
+  if(record.archived) return "history";
+  if(s && e && today>=s && today<=e) return "current";
+  if(s && today<s) return "future";
+  return "history";
+}
+
+function sortTripRecords(arr,desc=false){
+  return [...arr].sort((a,b)=>{
+    const av=a.trip?.startDate||"", bv=b.trip?.startDate||"";
+    return desc ? bv.localeCompare(av) : av.localeCompare(bv);
+  });
+}
+
+function formatRecordRange(record){
+  const s=record.trip?.startDate||"";
+  const e=record.trip?.endDate||s;
+  if(!s) return "未設定日期";
+  return s===e?s:`${s} ～ ${e}`;
+}
+
+
+
+let attachmentTargetTripId=null;
+
+function chooseTripAttachment(recordId){
+  attachmentTargetTripId=recordId;
+  const input=document.getElementById("tripAttachmentFile");
+  if(input){
+    input.value="";
+    input.click();
+  }
+}
+
+async function handleTripAttachmentUpload(event){
+  const file=event.target.files?.[0];
+  event.target.value="";
+  if(!file || !attachmentTargetTripId) return;
+
+  const record=trips.find(x=>x.id===attachmentTargetTripId);
+  attachmentTargetTripId=null;
+  if(!record) return;
+
+  try{
+    const db=await openHistoryDb();
+    const id="doc_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);
+
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(HISTORY_DOC_STORE,"readwrite");
+      tx.objectStore(HISTORY_DOC_STORE).put({
+        id,
+        name:file.name,
+        type:file.type||"",
+        size:file.size,
+        createdAt:new Date().toISOString(),
+        blob:file,
+        purpose:"trip-source-attachment",
+        tripId:record.id
+      });
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
+    });
+
+    // Replace the primary source attachment reference.
+    record.sourceDocuments=[id];
+    record.importedFrom=file.name;
+    record.updatedAt=new Date().toISOString();
+    persistTripCollection();
+    renderPlannerManager();
+    alert(`已將「${file.name}」綁定至「${record.trip?.title||"旅程"}」`);
+  }catch(e){
+    alert("附件保存失敗："+e.message);
+  }
+}
+
+async function downloadTripSource(recordId){
+  const record=trips.find(x=>x.id===recordId);
+  const docId=record?.sourceDocuments?.[0];
+  if(!docId){
+    if(confirm("這趟旅程目前沒有原始附件。要現在補上附件嗎？")){
+      chooseTripAttachment(recordId);
+    }
+    return;
+  }
+  try{
+    const db=await openHistoryDb();
+    const item=await new Promise((resolve,reject)=>{
+      const tx=db.transaction(HISTORY_DOC_STORE,"readonly");
+      const req=tx.objectStore(HISTORY_DOC_STORE).get(docId);
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+    if(!item?.blob){
+      if(confirm("找不到原始附件，可能已被瀏覽器清除。要重新上傳並綁定嗎？")){
+        chooseTripAttachment(recordId);
+      }
+      return;
+    }
+    const url=URL.createObjectURL(item.blob);
+    const a=document.createElement("a");
+    a.href=url;a.download=item.name||record.importedFrom||"原始文件";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(e){
+    alert("讀取原始文件失敗");
+  }
+}
+
+function renderPlannerManager(){
+  const host=document.getElementById("plannerManager");
+  if(!host) return;
+  if(plannerMode==="edit"){
+    host.innerHTML="";
+    return;
+  }
+
+  const groups={
+    current:sortTripRecords(trips.filter(x=>tripStatus(x)==="current")),
+    future:sortTripRecords(trips.filter(x=>tripStatus(x)==="future")),
+    history:sortTripRecords(trips.filter(x=>tripStatus(x)==="history"),true)
+  };
+
+  const section=(title,items,emptyText)=>`
+    <div class="trip-manager-section">
+      <div class="trip-manager-section-title">${title}</div>
+      ${items.length?items.map(renderTripManagerCard).join(""):`<div class="trip-manager-empty">${emptyText}</div>`}
+    </div>`;
+
+  host.innerHTML=
+    section("🟢 進行中",groups.current,"目前沒有進行中的旅程。")+
+    section("🧳 未來旅程",groups.future,"目前沒有其他未來旅程。")+
+    section("🕘 歷史旅程",groups.history,"目前沒有歷史旅程。");
+}
+
+function renderTripManagerCard(record){
+  const t=record.trip||{};
+  const days=t.days?.length||1;
+  const stops=(t.days||[]).reduce((n,d)=>n+(d.stops?.length||0),0);
+  const active=record.id===activeTripId;
+  return `<div class="trip-list-card ${active?"active-trip":""}">
+    <div class="trip-list-top">
+      <div>
+        <div class="trip-list-title">${escapeHtmlAttr(t.title||"未命名旅程")}</div>
+        <div class="trip-list-meta">${escapeHtmlAttr(formatRecordRange(record))}<br>${days} 天｜${stops} 站｜${escapeHtmlAttr(t.transport||"未設定交通")}${record.importedFrom?`<br>📎 行程附件：${escapeHtmlAttr(record.importedFrom)}`:""}</div>
+      </div>
+      ${getHomeTripRecord()?.id===record.id?'<span class="history-badge">首頁旅程</span>':""}
+    </div>
+    <div class="trip-list-badges">
+      <span class="badge">${tripStatus(record)==="future"?"即將出發":tripStatus(record)==="current"?"進行中":"歷史"}</span>
+    </div>
+    <div class="trip-list-actions">
+      <button onclick="viewManagedTrip('${record.id}')">查看</button>
+      <button onclick="editManagedTrip('${record.id}')">編輯</button>
+      
+      <button class="secondary-mini" onclick="duplicateManagedTrip('${record.id}')">複製</button>
+      ${record.sourceDocuments?.length
+        ? `<button class="secondary-mini" onclick="downloadTripSource('${record.id}')">📎 原始附件</button>
+           <button class="secondary-mini" onclick="chooseTripAttachment('${record.id}')">🔄 更換附件</button>`
+        : `<button class="secondary-mini" onclick="chooseTripAttachment('${record.id}')">📎 補上附件</button>`}
+      ${tripStatus(record)!=="history"?`<button class="secondary-mini" onclick="archiveManagedTrip('${record.id}')">封存</button>`:""}
+      ${trips.length>1?`<button class="danger-mini" onclick="deleteManagedTrip('${record.id}')">刪除</button>`:""}
+    </div>
+  </div>`;
+}
+
+function createBlankTrip(title,startDate,endDate,transport){
+  const d=startDate || isoDateLocal(new Date());
+  const tripData={
+    title:title||"新旅程",
+    startDate:d,
+    endDate:endDate||d,
+    transport:transport||"",
+    sunset:"",
+    days:[{
+      date:d,title:"第 1 天",transport:"",startPoint:"",endPoint:"",note:"",
+      lodging:{enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
+      stops:[]
+    }]
+  };
+  return makeTripRecord(tripData,{current:0,arrived:false,skipped:[]});
+}
+
+function showNewTripForm(){
+  plannerMode="list";
+  const host=document.getElementById("plannerManager");
+  if(!host) return;
+  const today=isoDateLocal(new Date());
+  host.innerHTML=`<div class="new-trip-form">
+    <div class="section-title">＋ 建立新旅程</div>
+    <div class="formrow">
+      <input id="newTripTitle" placeholder="旅程名稱，例如：宜蘭兩天一夜">
+      <input id="newTripTransport" placeholder="交通方式，例如：汽車">
+    </div>
+    <div class="formrow">
+      <input id="newTripStart" type="date" value="${today}">
+      <input id="newTripEnd" type="date" value="${today}">
+    </div>
+    <div class="btns">
+      <button class="btn primary" onclick="createManagedTrip()">建立並編輯</button>
+      <button class="btn secondary" onclick="renderPlannerManager()">取消</button>
+    </div>
+  </div>` + host.innerHTML;
+}
+
+function createManagedTrip(){
+  const title=document.getElementById("newTripTitle")?.value.trim()||"新旅程";
+  const transport=document.getElementById("newTripTransport")?.value.trim()||"";
+  const start=document.getElementById("newTripStart")?.value||isoDateLocal(new Date());
+  let end=document.getElementById("newTripEnd")?.value||start;
+  if(end<start) end=start;
+
+  const rec=createBlankTrip(title,start,end,transport);
+
+  // build all days across the selected date range
+  rec.trip.days=[];
+  let cursor=new Date(start+"T00:00:00");
+  const last=new Date(end+"T00:00:00");
+  let dayNo=1;
+  while(cursor<=last){
+    const date=isoDateLocal(cursor);
+    rec.trip.days.push({
+      date,title:`第 ${dayNo} 天`,transport:"",startPoint:"",endPoint:"",note:"",
+      lodging:{enabled:date!==end,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
+      stops:[]
+    });
+    cursor.setDate(cursor.getDate()+1); dayNo++;
+  }
+
+  trips.push(rec);
+  persistTripCollection();
+  editManagedTrip(rec.id);
+}
+
+function loadManagedTrip(id){
+  const rec=trips.find(x=>x.id===id);
+  if(!rec) return false;
+  activeTripId=id;
+  activeRecord=rec;
+  trip=structuredClone(rec.trip);
+  state=structuredClone(rec.state||{current:0,arrived:false,skipped:[]});
+  migrateTripSchema();
+  persistTripCollection();
+  return true;
+}
+
+function setActiveManagedTrip(id){
+  if(!loadManagedTrip(id)) return;
+  plannerMode="list";
+  render();
+  renderPlannerManager();
+}
+
+function editManagedTrip(id){
+  plannerPreviousActiveTripId=activeTripId;
+  if(!loadManagedTrip(id)) return;
+  plannerMode="edit";
+  const manager=document.getElementById("plannerManager");
+  const editorHost=document.getElementById("plannerEditorHost");
+  const source=document.getElementById("editView");
+  if(manager) manager.innerHTML="";
+  if(!editorHost || !source) return;
+
+  editorHost.innerHTML=`<div class="planner-editor-toolbar">
+    <button onclick="exitPlannerEditor()">← 返回旅程列表</button>
+    <span class="badge">編輯：${escapeHtmlAttr(trip.title||"旅程")}</span>
+  </div>`;
+  while(source.firstChild) editorHost.appendChild(source.firstChild);
+  renderEdit();
+}
+
+function exitPlannerEditor(){
+  if(document.getElementById("editTitle")){
+    saveEdits(false);
+  }
+
+  const source=document.getElementById("editView");
+  const editorHost=document.getElementById("plannerEditorHost");
+  if(source && editorHost){
+    const toolbar=editorHost.querySelector(".planner-editor-toolbar");
+    if(toolbar) toolbar.remove();
+    while(editorHost.firstChild) source.appendChild(editorHost.firstChild);
+  }
+
+  plannerMode="list";
+  plannerPreviousActiveTripId=null;
+
+  // Return global working trip to the correct home trip,
+  // so editing history can never replace tomorrow's itinerary.
+  ensureCorrectHomeTrip();
+  renderPlannerManager();
+}
+
+function duplicateManagedTrip(id){
+  const src=trips.find(x=>x.id===id);
+  if(!src) return;
+  const copy=makeTripRecord(src.trip,{current:0,arrived:false,skipped:[]});
+  copy.trip.title=(copy.trip.title||"旅程")+"（複製）";
+  trips.push(copy);
+  persistTripCollection();
+  renderPlannerManager();
+}
+
+function archiveManagedTrip(id){
+  const rec=trips.find(x=>x.id===id);
+  if(!rec) return;
+  rec.archived=true;
+  rec.updatedAt=new Date().toISOString();
+  persistTripCollection();
+  renderPlannerManager();
+}
+
+function deleteManagedTrip(id){
+  const rec=trips.find(x=>x.id===id);
+  if(!rec || !confirm(`確定刪除「${rec.trip?.title||"這趟旅程"}」？`)) return;
+  trips=trips.filter(x=>x.id!==id);
+  if(activeTripId===id){
+    const next=trips[0];
+    activeTripId=next.id;
+    trip=structuredClone(next.trip);
+    state=structuredClone(next.state||{current:0,arrived:false,skipped:[]});
+  }
+  persistTripCollection();
+  render();
+  renderPlannerManager();
+}
+
+
+let pendingTripImport=null;
+
+function cnDayNumber(s){
+  const map={"一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,"十":10};
+  if(/^\d+$/.test(s)) return Number(s);
+  if(map[s]) return map[s];
+  if(s==="十一") return 11;
+  if(s==="十二") return 12;
+  return 1;
+}
+
+function findAddressSplit(line){
+  const markers=[
+    "台北市","臺北市","新北市","桃園市","新竹市","新竹縣","苗栗縣","台中市","臺中市",
+    "彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","台南市","臺南市","高雄市","屏東縣",
+    "宜蘭縣","花蓮縣","台東縣","臺東縣","基隆市","澎湖縣","金門縣","連江縣"
+  ];
+  let best=-1;
+  for(const marker of markers){
+    const i=line.indexOf(marker);
+    if(i>=0 && (best<0 || i<best)) best=i;
+  }
+  if(best>0){
+    return {name:line.slice(0,best).trim(),address:line.slice(best).trim()};
+  }
+  return {name:line.trim(),address:""};
+}
+
+function parseCheckTime(line){
+  const m=line.match(/(\d{1,2})[:：](\d{2})(?:\s*[-~～]\s*(\d{1,2})[:：](\d{2}))?\s*check[- ]?in/i);
+  if(!m) return null;
+  return {
+    checkIn:`${String(m[1]).padStart(2,"0")}:${m[2]}`,
+    checkInEnd:m[3]?`${String(m[3]).padStart(2,"0")}:${m[4]}`:""
+  };
+}
+
+function parseLegacyTripText(text,fileName){
+  const rawLines=text.replace(/\r/g,"").split("\n").map(x=>x.trim()).filter(Boolean);
+  let title=(rawLines[0]||fileName.replace(/\.docx$/i,"")||"歷史旅程").replace(/\(預計.*?\)/g,"").trim();
+  let startDate="", endDate="", transport="", people="";
+
+  for(const line of rawLines.slice(0,12)){
+    let m=line.match(/日期\s*[:：]\s*(\d{4})\/(\d{1,2})\/(\d{1,2})\s*[~～-]\s*(?:(\d{4})\/)?(\d{1,2})\/(\d{1,2})/);
+    if(m){
+      const y1=m[1], y2=m[4]||m[1];
+      startDate=`${y1}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
+      endDate=`${y2}-${String(m[5]).padStart(2,"0")}-${String(m[6]).padStart(2,"0")}`;
+    }
+    m=line.match(/交通工具\s*[:：]\s*(.+)/);
+    if(m) transport=m[1].trim();
+    m=line.match(/人數\s*[:：]\s*(.+)/);
+    if(m) people=m[1].trim();
+  }
+
+  const dayRe=/^第([一二三四五六七八九十\d]+)天\s*[:：]?\s*(\d{1,2})\/(\d{1,2})(?:\([^)]*\))?\s*[:：]?\s*(.*)$/;
+  const days=[];
+  let current=null, section="";
+  let provider="";
+
+  for(const line of rawLines){
+    const dm=line.match(dayRe);
+    if(dm){
+      const month=Number(dm[2]), day=Number(dm[3]);
+      const year=(startDate?Number(startDate.slice(0,4)):new Date().getFullYear());
+      current={
+        date:`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`,
+        title:(dm[4]||`第 ${cnDayNumber(dm[1])} 天`).trim(),
+        transport:"",
+        startPoint:"",
+        endPoint:"",
+        note:"",
+        lodging:{enabled:false,name:"",address:"",checkIn:"",checkOut:"",bookingRef:"",note:""},
+        stops:[]
+      };
+      if(current.title.includes("→")){
+        const parts=current.title.split("→").map(x=>x.trim()).filter(Boolean);
+        current.startPoint=parts[0]||"";
+        current.endPoint=parts[parts.length-1]||"";
+      }
+      days.push(current);
+      section="";
+      provider="";
+      continue;
+    }
+    if(!current) continue;
+
+    if(/^景點$/.test(line)){section="spot";continue;}
+    if(/^飲食$/.test(line)){section="food";continue;}
+    if(/^住宿/.test(line)){
+      section="lodging";
+      provider=line.replace(/^住宿/,"").trim();
+      current.lodging.enabled=true;
+      if(provider) current.lodging.note=`訂房平台：${provider}`;
+      continue;
+    }
+    if(/行程圖$/.test(line)) continue;
+
+    if(section==="spot" || section==="food"){
+      if(line==="隨意") continue;
+      const p=findAddressSplit(line);
+      let note="";
+      let address=p.address;
+      // Move trailing parenthetical opening-hours note out of address when obvious.
+      const par=address.match(/^(.*?)(\([^)]*(?:營業|點|公休|無營業時間)[^)]*\))$/);
+      if(par){address=par[1].trim();note=par[2].replace(/^\(|\)$/g,"");}
+      current.stops.push({
+        time:"",
+        name:p.name || line,
+        address,
+        note:(section==="food"?"飲食":"景點")+(note?`｜${note}`:""),
+        stay:0,
+        type:section==="food"?"food":"spot"
+      });
+      continue;
+    }
+
+    if(section==="lodging"){
+      const ck=parseCheckTime(line);
+      if(ck){
+        current.lodging.checkIn=ck.checkIn;
+        if(ck.checkInEnd) current.lodging.note+=(current.lodging.note?"｜":"")+`最晚入住 ${ck.checkInEnd}`;
+        continue;
+      }
+      if(/(?:訂單編號|確認碼|預訂確認碼)\s*[:：]?\s*(.+)/.test(line)){
+        const mm=line.match(/(?:訂單編號|確認碼|預訂確認碼)\s*[:：]?\s*(.+)/);
+        const val=mm?.[1]?.trim();
+        // Keep booking references, but skip PIN.
+        if(val){
+          current.lodging.bookingRef += (current.lodging.bookingRef?" / ":"")+val;
+        }
+        continue;
+      }
+      if(/PIN\s*碼/i.test(line)) continue;
+      if(!current.lodging.name && !/(AsiaYo|Booking\.com)/i.test(line)){
+        const p=findAddressSplit(line);
+        if(p.address){
+          current.lodging.name=p.name;
+          current.lodging.address=p.address;
+        }else{
+          // Avoid treating pure price/phone lines as name.
+          if(!/^\d+\s*\(?\d*\s*人?\)?$/.test(line) && !/^\d{2,4}[-\s]\d+/.test(line)){
+            current.lodging.name=line;
+          }
+        }
+        continue;
+      }
+      if(!current.lodging.address){
+        const p=findAddressSplit(line);
+        if(p.address || /(?:縣|市).*(?:路|街|巷|號)/.test(line)){
+          current.lodging.address=p.address||line;
+          if(!current.lodging.name && p.name) current.lodging.name=p.name;
+          continue;
+        }
+      }
+      current.lodging.note+=(current.lodging.note?"｜":"")+line;
+    }
+  }
+
+  if(!days.length) throw new Error("沒有辨識到「第一天／第二天…」等每日行程標題");
+
+  if(!startDate) startDate=days[0].date;
+  if(!endDate) endDate=days[days.length-1].date;
+
+  return {
+    title:title||"歷史旅程",
+    startDate,endDate,
+    transport:transport||"",
+    sunset:"",
+    people,
+    importSource:fileName,
+    days
+  };
+}
+
+async function saveHistoricalSourceFile(file){
+  try{
+    const db=await openHistoryDb();
+    const id="doc_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(HISTORY_DOC_STORE,"readwrite");
+      tx.objectStore(HISTORY_DOC_STORE).put({
+        id,name:file.name,type:file.type||"",size:file.size,
+        createdAt:new Date().toISOString(),blob:file,
+        purpose:"trip-source-attachment"
+      });
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+    });
+    return id;
+  }catch(e){
+    console.warn("source document storage failed",e);
+    return null;
+  }
+}
+
+async function importTripDocument(event){
+  const file=event.target.files?.[0];
+  event.target.value="";
+  if(!file) return;
+
+  const preview=document.getElementById("tripImportPreview");
+  if(preview) preview.innerHTML='<div class="import-preview">正在解析行程文件…</div>';
+
+  try{
+    if(!/\.docx$/i.test(file.name)) throw new Error("目前第一階段先支援 DOCX 行程文件");
+    if(!window.mammoth) throw new Error("DOCX 解析元件尚未載入，請確認網路連線");
+
+    const buf=await file.arrayBuffer();
+    const result=await mammoth.extractRawText({arrayBuffer:buf});
+    const parsed=parseLegacyTripText(result.value,file.name);
+    const sourceDocId=await saveHistoricalSourceFile(file);
+
+    pendingTripImport={trip:parsed,sourceDocId,fileName:file.name};
+    renderTripImportPreview();
+  }catch(e){
+    pendingTripImport=null;
+    if(preview) preview.innerHTML=`<div class="import-error">行程文件解析失敗：${escapeHtmlAttr(e.message)}</div>`;
+  }
+}
+
+function renderTripImportPreview(){
+  const host=document.getElementById("tripImportPreview");
+  if(!host || !pendingTripImport) return;
+  const t=pendingTripImport.trip;
+  const stops=t.days.reduce((n,d)=>n+(d.stops?.length||0),0);
+  const lodgings=t.days.filter(d=>d.lodging?.enabled && d.lodging?.name).length;
+
+  host.innerHTML=`<div class="import-preview">
+    <h3>📄 已解析行程文件：${escapeHtmlAttr(t.title)}</h3>
+    <div class="history-meta">${escapeHtmlAttr(t.startDate)} ～ ${escapeHtmlAttr(t.endDate)}${t.transport?`｜${escapeHtmlAttr(t.transport)}`:""}${t.people?`｜${escapeHtmlAttr(t.people)}`:""}</div>
+    <div class="import-summary">
+      <span class="badge">${t.days.length} 天</span>
+      <span class="badge">${stops} 個行程點</span>
+      <span class="badge">${lodgings} 筆住宿</span>
+      <span class="badge">來源文件：${escapeHtmlAttr(pendingTripImport.fileName)}</span>
+    </div>
+    ${t.days.map((d,i)=>`<div class="import-day"><b>Day ${i+1}｜${escapeHtmlAttr(d.title||"")}</b><br>${escapeHtmlAttr(d.date)}｜${d.stops.length} 個行程點${d.lodging?.name?`｜🏨 ${escapeHtmlAttr(d.lodging.name)}`:""}</div>`).join("")}
+    <div class="import-actions">
+      <button class="btn primary" onclick="commitTripImport('auto')">匯入旅程</button>
+      <button class="btn secondary" onclick="commitTripImport('active')">匯入並立即編輯</button>
+      <button class="btn secondary" onclick="cancelTripImport()">取消</button>
+    </div>
+  </div>`;
+}
+
+function commitTripImport(mode){
+  if(!pendingTripImport) return;
+
+  const rec=makeTripRecord(pendingTripImport.trip,{current:0,arrived:false,skipped:[]});
+  rec.sourceDocuments=pendingTripImport.sourceDocId?[pendingTripImport.sourceDocId]:[];
+  rec.importedFrom=pendingTripImport.fileName;
+
+  const today=getTodayIso();
+  const endDate=rec.trip?.endDate||rec.trip?.startDate||"";
+  rec.archived=(endDate && endDate<today);
+
+  trips.push(rec);
+  persistTripCollection();
+
+  pendingTripImport=null;
+  const host=document.getElementById("tripImportPreview");
+  if(host) host.innerHTML="";
+
+  renderPlannerManager();
+  renderCalendar();
+
+  if(mode==="active"){
+    editManagedTrip(rec.id);
+    return;
+  }
+
+  const status=tripStatus(rec);
+  const statusText=status==="future"?"未來旅程":status==="current"?"進行中旅程":"歷史旅程";
+  alert(`已匯入 Willy Trip，系統判定為「${statusText}」`);
+}
+
+function cancelTripImport(){
+  pendingTripImport=null;
+  const host=document.getElementById("tripImportPreview");
+  if(host) host.innerHTML="";
+}
+
+
+function viewManagedTrip(id){
+  const record=trips.find(x=>x.id===id);
+  if(!record) return;
+
+  const btn=document.querySelector('[data-view="journeyView"]');
+  switchView(btn,"journeyView");
+
+  const timelinePanel=document.getElementById("journeyTimelinePanel");
+  const calendarPanel=document.getElementById("journeyCalendarPanel");
+  if(calendarPanel) calendarPanel.classList.add("hidden");
+  if(timelinePanel) timelinePanel.classList.remove("hidden");
+  setJourneyTab("timeline");
+
+  if(!timelinePanel) return;
+  timelinePanel.innerHTML=renderReadOnlyTrip(record);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+
+function returnFromTripViewer(){
+  const btn=document.querySelector('[data-view="plannerView"]');
+  switchView(btn,"plannerView");
+  plannerMode="list";
+  renderPlannerManager();
+}
+
+function renderReadOnlyTrip(record){
+  const t=record.trip||{};
+  const range=t.startDate===t.endDate?t.startDate:`${t.startDate} ～ ${t.endDate}`;
+  let out=`<div class="readonly-trip-card">
+    <div class="readonly-trip-head">
+      <div>
+        <div class="readonly-trip-title">${escapeHtmlAttr(t.title||"未命名旅程")}</div>
+        <div class="readonly-meta">${escapeHtmlAttr(range||"")}｜${escapeHtmlAttr(t.transport||"未設定交通")}</div>
+      </div>
+      <button class="iconbtn" onclick="returnFromTripViewer()">返回旅程管理</button>
+    </div>`;
+
+  (t.days||[]).forEach((day,di)=>{
+    out+=`<div class="readonly-day">
+      <b>${(t.days||[]).length>1?`Day ${di+1}｜`:""}${escapeHtmlAttr(day.title||"本日行程")}</b>
+      <div class="readonly-meta">${escapeHtmlAttr(day.date||"")}${day.startPoint?`｜${escapeHtmlAttr(day.startPoint)}`:""}${day.endPoint?` → ${escapeHtmlAttr(day.endPoint)}`:""}</div>`;
+
+    (day.stops||[]).forEach(stop=>{
+      out+=`<div class="readonly-stop">
+        <b>${escapeHtmlAttr(stop.time||"--:--")}｜${escapeHtmlAttr(stop.name||"未命名地點")}</b>
+        <div class="readonly-meta">${stop.note?escapeHtmlAttr(stop.note)+"<br>":""}${stop.address?`📍 ${escapeHtmlAttr(stop.address)}`:""}</div>
+      </div>`;
+    });
+
+    if(day.lodging?.enabled){
+      const l=day.lodging;
+      out+=`<div class="lodging-card">
+        <div class="lodging-card-title">🏨 ${escapeHtmlAttr(l.name||"本晚住宿")}</div>
+        <div class="lodging-card-meta">${l.address?`📍 ${escapeHtmlAttr(l.address)}<br>`:""}${l.checkIn?`入住 ${escapeHtmlAttr(l.checkIn)}`:""}${l.checkOut?`｜退房 ${escapeHtmlAttr(l.checkOut)}`:""}</div>
+      </div>`;
+    }
+    out+=`</div>`;
+  });
+
+  if(record.importedFrom){
+    out+=`<div class="history-meta" style="margin-top:10px">📄 原始來源：${escapeHtmlAttr(record.importedFrom)}</div>`;
+  }
+
+  out+=`</div>`;
+  return out;
+}
+
 function render(){
   const first=allStops()[0];
   if(document.getElementById("heroFirstTime")) document.getElementById("heroFirstTime").textContent=first?.time||"--:--";
   if(document.getElementById("heroFirstPlace")) document.getElementById("heroFirstPlace").textContent=first?`第一站｜${first.name}`:"尚未設定第一站";
   if(document.getElementById("heroTransport")) document.getElementById("heroTransport").textContent=`🚗 ${trip.transport||"未設定交通"}`;
-  document.getElementById("tripTitle").textContent=trip.title;
+  { const el=document.getElementById("tripTitle"); if(el) el.textContent=trip.title; }
   {
     const el=document.getElementById("tripDate");
     if(trip.startDate===trip.endDate){
@@ -1020,23 +2576,35 @@ function render(){
       el.textContent=formatTripDateRange();
     }
   }
-  document.getElementById("stopCount").textContent=tripDayCount()>1?`${totalStops()} 站｜${tripDayCount()} 天`:`${totalStops()} 站`;
-  document.getElementById("nowTime").textContent="目前站點 "+Math.min(state.current+1,totalStops())+" / "+totalStops();
+  { const el=document.getElementById("stopCount"); if(el) el.textContent=tripDayCount()>1?`${totalStops()} 站｜${tripDayCount()} 天`:`${totalStops()} 站`; }
+  { const el=document.getElementById("nowTime"); if(el) el.textContent="目前站點 "+Math.min(state.current+1,totalStops())+" / "+totalStops(); }
   const s=currentFlatStop();
-  document.getElementById("currentName").textContent=s? s.name:"行程完成";
-  document.getElementById("currentMeta").textContent=s? `${s.time}｜${s.note}${state.arrived?"｜已抵達":""}`:"今天辛苦了";
-  document.getElementById("currentAddr").textContent=s? "📍 "+s.address:"";
-  document.getElementById("progressBar").style.width=(totalStops()?((state.current)/totalStops()*100):0)+"%";
+  { const el=document.getElementById("currentName"); if(el) el.textContent=s? s.name:"行程完成"; }
+  { const el=document.getElementById("currentMeta"); if(el) el.textContent=s? `${s.time}｜${s.note}${state.arrived?"｜已抵達":""}`:"今天辛苦了"; }
+  { const el=document.getElementById("currentAddr"); if(el) el.textContent=s? "📍 "+s.address:""; }
+  {
+    const progressBar=document.getElementById("progressBar");
+    if(progressBar){
+      progressBar.style.width=(totalStops()?((state.current)/totalStops()*100):0)+"%";
+    }
+  }
   renderTimeline(); renderEdit(); renderNextPreview(); updateClock(); updateTripCountdown();
 }
 function renderTimeline(){
-  const el=document.getElementById("timeline"); el.innerHTML="";
+  const el=document.getElementById("timeline"); if(!el) return; el.innerHTML="";
   let flatIndex=0;
   const multiDay = trip.days.length > 1 || tripDayCount() > 1;
+
+  if(!trip.days || trip.days.length===0){
+    el.innerHTML='<div class="note">目前沒有每日行程，請到「編輯」建立行程。</div>';
+    return;
+  }
 
   trip.days.forEach((day,di)=>{
     const block=document.createElement("div");
     block.className="day-block";
+    block.dataset.dayIndex=di;
+    block.dataset.relationType="day";
 
     const title=document.createElement("div");
     const heading = multiDay
@@ -1069,6 +2637,9 @@ function renderTimeline(){
 
     (day.stops||[]).forEach((s,si)=>{
       const d=document.createElement("div"); d.className="stop";
+      d.dataset.dayIndex=di;
+      d.dataset.stopIndex=si;
+      d.dataset.relationType="stop";
       const skipped=state.skipped.includes(flatIndex);
       d.innerHTML=`<div class="time">${s.time||"--:--"}</div>
         <div><div class="stop-name">${skipped?"⏭️ ":""}${s.name||"未命名地點"}</div>
@@ -1082,6 +2653,8 @@ function renderTimeline(){
       const l=day.lodging;
       const stay=document.createElement("div");
       stay.className="lodging-card";
+      stay.dataset.dayIndex=di;
+      stay.dataset.relationType="lodging";
       const timeParts=[];
       if(l.checkIn) timeParts.push(`入住 ${l.checkIn}`);
       if(l.checkOut) timeParts.push(`退房 ${l.checkOut}`);
@@ -1108,7 +2681,7 @@ function renderEdit(){
   document.getElementById("editDayCount").textContent=`${trip.days.length} 天`;
   document.getElementById("editStopCount").textContent=`${totalStops()} 個行程點`;
 
-  const el=document.getElementById("editDays"); el.innerHTML="";
+  const el=document.getElementById("editDays"); if(!el) return; el.innerHTML="";
   const multiDay = trip.days.length > 1 || tripDayCount() > 1;
 
   trip.days.forEach((day,di)=>{
@@ -1238,7 +2811,7 @@ function deleteStop(di,si){
   trip.days[di].stops.splice(si,1);
   renderEdit();
 }
-function saveEdits(){
+function saveEdits(showAlert=true){
   trip.title=document.getElementById("editTitle").value.trim()||trip.title;
   trip.transport=document.getElementById("editTransport").value.trim()||"";
   trip.startDate=document.getElementById("editStartDate").value||trip.startDate;
@@ -1271,12 +2844,12 @@ function saveEdits(){
     trip.endDate=trip.days[trip.days.length-1].date || trip.endDate;
   }
 
-  saveTrip(); render(); alert("已儲存");
+  saveTrip(); render(); renderPlannerManager(); if(showAlert) alert("已儲存");
 }
 function resetTrip(){
   if(confirm("確定還原預設新竹行程？")){
     trip=structuredClone(DEFAULT_TRIP); state={current:0,arrived:false,skipped:[]}; migrateTripSchema();
-    saveTrip(); saveState(); render();
+    saveTrip(); saveState(); render(); renderPlannerManager();
   }
 }
 function navigateCurrent(){
@@ -1291,16 +2864,125 @@ function skipStop(){
   if(!state.skipped.includes(state.current)) state.skipped.push(state.current);
   goNext();
 }
+
+function updateTopInfoForView(viewId){
+  const top=document.getElementById("globalTopInfo");
+  if(!top) return;
+
+  top.classList.remove("topinfo-hidden","compact");
+
+  if(viewId==="homeView"){
+    // full time + weather
+    return;
+  }
+
+  if(viewId==="journeyView" || viewId==="nearbyView"){
+    // compact weather only
+    top.classList.add("compact");
+    return;
+  }
+
+  // calendar / edit / data do not need persistent top info
+  top.classList.add("topinfo-hidden");
+}
+
+
+function initNavigationLayout(){
+  plannerMode="list";
+  renderPlannerManager();
+  showJourneySection("timeline");
+}
+
+function setJourneyTab(tab){
+  document.getElementById("journeyTabTimeline")?.classList.toggle("active",tab==="timeline");
+  document.getElementById("journeyTabCalendar")?.classList.toggle("active",tab==="calendar");
+}
+
+function showJourneySection(tab){
+  const panels={
+    timeline:document.getElementById("journeyTimelinePanel"),
+    calendar:document.getElementById("journeyCalendarPanel")
+  };
+  Object.entries(panels).forEach(([key,el])=>{
+    if(el) el.classList.toggle("hidden",key!==tab);
+  });
+  setJourneyTab(tab);
+
+  if(tab==="timeline"){
+    const panel=document.getElementById("journeyTimelinePanel");
+    if(panel && !document.getElementById("timeline")){
+      panel.innerHTML=`<div class="card"><div class="section-title">完整行程</div><div class="timeline" id="timeline"></div></div>`;
+    }
+    renderTimeline();
+  }
+  if(tab==="calendar") renderCalendar();
+}
+
+function openJourneyHistory(){
+  const btn=document.querySelector('[data-view="plannerView"]');
+  switchView(btn,"plannerView");
+  plannerMode="list";
+  renderPlannerManager();
+  setTimeout(()=>{
+    document.querySelector(".trip-manager-section:last-child")?.scrollIntoView({behavior:"smooth",block:"start"});
+  },50);
+}
+
+function openMoreData(){
+  const target=document.getElementById("moreContent");
+  const source=document.getElementById("dataView");
+  if(!target || !source) return;
+  target.innerHTML="";
+  while(source.firstChild) target.appendChild(source.firstChild);
+  updateBackupMeta();
+}
+
+function openMoreDocuments(){
+  const btn=document.querySelector('[data-view="journeyView"]');
+  switchView(btn,"journeyView");
+  showJourneySection("history");
+  showHistoryTab("docs");
+  renderHistoryDocuments();
+}
+
+function showAboutWillyTrip(){
+  const target=document.getElementById("moreContent");
+  if(!target) return;
+  target.innerHTML=`<div class="card">
+    <div class="section-title">ℹ️ 關於 Willy Trip</div>
+    <div class="note">Willy Trip v1.8.1 Stable<br>隨身出遊助手｜規劃負責管理、旅程負責檢視、行事曆負責跨旅程瀏覽。</div>
+  </div>`;
+}
+
 function switchView(btn,id){
-  ["homeView","timelineView","nearbyView","editView","dataView"].forEach(v=>document.getElementById(v).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active")); btn.classList.add("active");
+  ["homeView","journeyView","nearbyView","plannerView","moreView"].forEach(v=>{
+    const el=document.getElementById(v);
+    if(el) el.classList.add("hidden");
+  });
+  const target=document.getElementById(id);
+  if(target) target.classList.remove("hidden");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  updateTopInfoForView(id);
+
+  // Re-render the opened page so a previous UI error cannot leave it blank.
+  if(id==="journeyView" && !document.querySelector(".subnav button.active")) showJourneySection("timeline");
+  
+  if(id==="plannerView"){ if(plannerMode==="list") renderPlannerManager(); else renderEdit(); }
+  if(id==="moreView"){ const c=document.getElementById("moreContent"); if(c) c.innerHTML=""; }
+  if(id==="homeView"){
+    ensureCorrectHomeTrip();
+    render();
+    updateHomeContext();
+  }
 }
 function updateClock(){
+  updateHomeContext();
   const now=new Date();
   const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
   const tripDayIndex=trip.days.findIndex(d=>d.date===today);
   const stat=document.getElementById("statusText"), sun=document.getElementById("sunsetText");
+  if(!stat || !sun) return;
   if(tripDayIndex<0){
     if(today < trip.startDate){
       stat.textContent="行程尚未開始";
@@ -1359,6 +3041,65 @@ function weatherCodeText(code){
 }
 
 let lastWeatherCoords = null;
+
+function saveLastCoords(coords){
+  if(!coords) return;
+  localStorage.setItem("willyTripLastCoords",JSON.stringify({
+    lat:coords.lat,lon:coords.lon,accuracy:coords.accuracy||0,at:Date.now()
+  }));
+}
+function getLastCoords(){
+  try{return JSON.parse(localStorage.getItem("willyTripLastCoords")||"null")}catch(e){return null}
+}
+async function loadWeatherFromCachedLocation(){
+  const cached=getLastCoords();
+  if(!cached) return false;
+  lastWeatherCoords=cached;
+  try{
+    await loadWeather(false);
+    return true;
+  }catch(e){return false}
+}
+async function initLocationWeather(){
+  const btn=document.getElementById("locationActionBtn");
+
+  // Local file previews should never auto-trigger the browser permission prompt.
+  if(location.protocol==="file:"){
+    const ok=await loadWeatherFromCachedLocation();
+    if(!ok){
+      const loc=document.getElementById("weatherLocation");
+      if(loc) loc.textContent="📍 點「啟用定位」取得目前位置";
+      const desc=document.getElementById("weatherDesc");
+      if(desc) desc.textContent="等待定位";
+    }
+    if(btn) btn.textContent="啟用定位";
+    return;
+  }
+
+  try{
+    if(navigator.permissions?.query){
+      const permission=await navigator.permissions.query({name:"geolocation"});
+      if(permission.state==="granted"){
+        if(btn) btn.textContent="重新定位";
+        await loadWeather(true);
+        return;
+      }
+      // Do not automatically trigger "prompt" or "denied".
+      const ok=await loadWeatherFromCachedLocation();
+      if(!ok){
+        const loc=document.getElementById("weatherLocation");
+        if(loc) loc.textContent=permission.state==="denied"?"📍 定位未授權":"📍 尚未啟用定位";
+      }
+      if(btn) btn.textContent=permission.state==="denied"?"定位設定":"啟用定位";
+      return;
+    }
+  }catch(e){}
+
+  // Browsers without Permissions API: use cached location, otherwise wait for explicit click.
+  const ok=await loadWeatherFromCachedLocation();
+  if(!ok && btn) btn.textContent="啟用定位";
+}
+
 
 let latestWeatherData=null;
 
@@ -1494,6 +3235,7 @@ async function loadWeather(forceLocation=false){
       locEl.textContent="📍 目前位置定位中…";
       coords = await getBrowserLocation();
       lastWeatherCoords = coords;
+      saveLastCoords(coords);
     }
 
     const [d, placeName] = await Promise.all([
@@ -1594,17 +3336,29 @@ async function loadWeather(forceLocation=false){
   }
 }
 
-function refreshLocationWeather(){
-  loadWeather(true);
+async function refreshLocationWeather(){
+  const btn=document.getElementById("locationActionBtn");
+  if(btn) btn.textContent="定位中…";
+  await loadWeather(true);
+  if(btn) btn.textContent="重新定位";
 }
 
 
 updateLiveClock();
 setInterval(()=>{updateLiveClock();updateTripCountdown();},1000);
-loadWeather(true);
-setInterval(()=>loadWeather(false),15*60*1000);
+initLocationWeather();
+setInterval(()=>{ if(lastWeatherCoords) loadWeather(false); },15*60*1000);
+ensureCorrectHomeTrip();
 render();
+initNavigationLayout();
+updateTopInfoForView('homeView');
 setInterval(updateClock,30000);
+</script>
+
+<script>
+window.addEventListener("error",function(e){
+  console.error("Willy Trip runtime error:",e.error||e.message);
+});
 </script>
 </body>
 </html>
